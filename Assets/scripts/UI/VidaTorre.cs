@@ -5,26 +5,27 @@ using TMPro;
 
 public class VidaTorre : MonoBehaviour
 {
-    private int vida;
     private TextMeshProUGUI textMesh;
-
 
     private void Start()
     {
         textMesh = GetComponent<TextMeshProUGUI>();
+
+        ActualizarVida(GameManager.Instance.vidaTorre); // Mostrar vida inicial
+
+        if (GameManager.Instance.torreScript != null)
+        {
+            GameManager.Instance.torreScript.OnGetDamange += ActualizarVidaEvent; // Escuchamos cuando recibe daño
+        }
     }
-    // Update is called once per frame
-    void Update()
+
+    private void ActualizarVidaEvent(int daño)
     {
-        vida = GameManager.Instance.vidaTorre;
-
-        textMesh.text = vida.ToString("0");
+        ActualizarVida(GameManager.Instance.vidaTorre);
     }
 
-    public void RestarVidaTorre(int puntosEntrada)
+    private void ActualizarVida(int vidaActual)
     {
-        vida -= puntosEntrada;
+        textMesh.text = vidaActual.ToString("0");
     }
-
-
 }
