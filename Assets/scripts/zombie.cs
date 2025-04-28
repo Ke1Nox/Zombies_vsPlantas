@@ -60,6 +60,6 @@ public class zombie : MonoBehaviour
         gameObject.SetActive(false); // Desactivar el zombie en lugar de destruirlo
         spawner.GetComponent<Spawner>().colaDeZombies.Enqueue(gameObject); // Reincorporar al pool de zombies
         vidaZombie = 100;
-        Mananger.puntos += 50;
+        GameManager.Instance.SumarPuntos(50);
     }
 }

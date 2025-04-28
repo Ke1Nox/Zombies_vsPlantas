@@ -18,7 +18,7 @@ public class Puntaje : MonoBehaviour
    
     private void Update()
     {
-        Puntos = Mananger.puntos;
+        Puntos = GameManager.Instance.puntos;
         textMesh.text = Puntos.ToString("0");
     }
 
