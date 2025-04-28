@@ -238,6 +238,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b797bf3c991d41a49ae8756023467958, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  vidaTorre: 100
+  puntos: 0
+  currentLevel: 1
   torreScript: {fileID: 0}
   turret: {fileID: 0}
 --- !u!1 &272334115
@@ -745,6 +748,7 @@ GameObject:
   - component: {fileID: 1221324562}
   - component: {fileID: 1221324561}
   - component: {fileID: 1221324560}
+  - component: {fileID: 1221324563}
   m_Layer: 0
   m_Name: VolverMenuBut
   m_TagString: Untagged
@@ -816,9 +820,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 261247444}
-        m_TargetAssemblyTypeName: Mananger, Assembly-CSharp
-        m_MethodName: BotonFinAMenu
+      - m_Target: {fileID: 1221324563}
+        m_TargetAssemblyTypeName: NextLevelButton, Assembly-CSharp
+        m_MethodName: VolverAlMenu
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -866,3 +870,15 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1221324558}
   m_CullTransparentMesh: 1
+--- !u!114 &1221324563
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1221324558}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5d2c66f458a2d542ab3dab7139a8abd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

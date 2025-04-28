@@ -15,8 +15,8 @@ EditorBuildSettings:
     path: Assets/Scenes/Fail.unity
     guid: 4d404188c785e754a809a3c3ad9788b3
   - enabled: 1
-    path: Assets/Scenes/Win1.unity
-    guid: 9cd218e0ff7920c43bbedb03bebf5701
+    path: Assets/Scenes/Ganaste.unity
+    guid: 1ff291a41dfbe314ab497abc1840d68b
   - enabled: 1
     path: Assets/Scenes/lvl2.unity
     guid: c0e7bd7bc83bc2b45a1acd6ada205a8d

@@ -43,9 +43,9 @@ public class GameManager : MonoBehaviour
 
     void CheckLevelProgress()
     {
-        if (currentLevel == 1 && puntos >= 500)
+        if (currentLevel == 1 && puntos >= 50)
         {
-            LoadScene(3); // Ganas Nivel 1 → Win1
+           LoadScene(3);// Ganas Nivel 1 → Win1
         }
         else if (currentLevel == 2 && puntos >= 1000)
         {
