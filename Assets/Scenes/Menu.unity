@@ -841,9 +841,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1671436025}
-        m_TargetAssemblyTypeName: Mananger, Assembly-CSharp
-        m_MethodName: BotonMenuJugar
+      - m_Target: {fileID: 1671436026}
+        m_TargetAssemblyTypeName: NextLevelButton, Assembly-CSharp
+        m_MethodName: Lvl1
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -904,6 +904,7 @@ GameObject:
   - component: {fileID: 1671436023}
   - component: {fileID: 1671436022}
   - component: {fileID: 1671436025}
+  - component: {fileID: 1671436026}
   m_Layer: 0
   m_Name: Canvas
   m_TagString: Untagged
@@ -1009,6 +1010,18 @@ MonoBehaviour:
   currentLevel: 1
   torreScript: {fileID: 0}
   turret: {fileID: 0}
+--- !u!114 &1671436026
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1671436020}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5d2c66f458a2d542ab3dab7139a8abd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1672015298
 GameObject:
   m_ObjectHideFlags: 0
