@@ -7,7 +7,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
-    public int vidaTorre = 100;
+    public int vidaTorre = 1000;
     public float puntos = 0;
     public int currentLevel = 1; // 1 = primer nivel, 2 = segundo nivel
 
@@ -59,7 +59,7 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(sceneIndex);
     }
 
-    void CheckDead(int daño)
+    public void CheckDead(int daño)
     {
         vidaTorre -= 10;
         if (vidaTorre <= 0)

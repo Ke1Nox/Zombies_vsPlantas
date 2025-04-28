@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 30142194095720033}
   - component: {fileID: 30142194095720032}
   m_Layer: 10
-  m_Name: zombie_0
+  m_Name: plantin2
   m_TagString: zombie
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -76,7 +76,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 3406341790681459266, guid: 5e9079b76e09c2142b45b601121422ee, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.9433962, g: 0.45834818, b: 0.45834818, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -119,7 +119,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   vidaZombie: 0
   maximoVidaZ: 100
-  vel: 9
+  vel: 15
   "TiempoEntreDa\xF1o": 2
   puntaje: {fileID: 0}
 --- !u!61 &30142194095720033

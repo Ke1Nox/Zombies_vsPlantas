@@ -37,11 +37,8 @@ public class zombie : MonoBehaviour
         if (other.CompareTag("torre"))
         {
             TiempoSigienteDaño -= Time.deltaTime;
-            if (TiempoSigienteDaño <= 5)
-            {
-                other.GetComponent<TorreScript>().TomarDañoT(1);
-                TiempoSigienteDaño = TiempoEntreDaño;
-            }
+
+            GameManager.Instance.CheckDead(1);
         }
     }
 

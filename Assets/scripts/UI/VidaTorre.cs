@@ -13,13 +13,11 @@ public class VidaTorre : MonoBehaviour
     {
         textMesh = GetComponent<TextMeshProUGUI>();
     }
-    public void TomarVida(int daño)
-    {
-        vida -= daño;
-    }
     // Update is called once per frame
     void Update()
     {
+        vida = GameManager.Instance.vidaTorre;
+
         textMesh.text = vida.ToString("0");
     }
 

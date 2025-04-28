@@ -987,7 +987,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b225929912f5612469696dbce8ace78c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  vida: 0
+  vida: 1000
   vidaMax: 1000
 --- !u!1 &811811637
 GameObject:
@@ -1316,10 +1316,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 965018357}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a01995ecb9628984e94b1e2b578ef7db, type: 3}
+  m_Script: {fileID: 11500000, guid: 4f60bd17b11f23947a72ec563c477d7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  torreScript: {fileID: 763285873}
 --- !u!114 &965018360
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1913,7 +1912,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b797bf3c991d41a49ae8756023467958, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  vidaTorre: 100
+  vidaTorre: 1000
   puntos: 0
   currentLevel: 1
   torreScript: {fileID: 763285873}
