@@ -11,6 +11,12 @@ public class NextLevelButton : MonoBehaviour
             GameManager.Instance.currentLevel = 2; // Cambiamos el nivel actual en el GameManager
         }
     }
+    public void Lvl1()
+    {
+        SceneManager.LoadScene(1); // nivel 1
+
+        
+    }
 
     public void VolverAlMenu()
     {
