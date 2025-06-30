@@ -4,21 +4,31 @@ using UnityEngine;
 
 public class Spawner : MonoBehaviour
 {
+
     [SerializeField] GameObject zombiePrefab;
     [SerializeField] float tiempoSpawn = 2f;
     private float currentTime;
 
-    public MyQueue <GameObject> colaDeZombies = new MyQueue<GameObject>(); // Cola de zombies
+    public MyQueue<GameObject> colaDeZombies = new MyQueue<GameObject>();
+
+    public GrafoMA grafo;
+
+    public Dictionary<int, Vector2> posicionesNodos;
+
+    [SerializeField] private int cantidadCarriles = 3;
+    [SerializeField] private int nodosPorCarril = 28;
+    [SerializeField] float xInicial = -50f; // donde empiezan
 
     void Start()
     {
-        // Inicializamos la cola con algunos zombies (por ejemplo, 2)
-        for (int i = 0; i < 4; i++)
+        InicializarGrafo();
+
+        for (int i = 0; i < 6; i++)
         {
-            GameObject zombie = Instantiate(zombiePrefab, transform.position, transform.rotation);
-            zombie.GetComponent<zombie>().SetSpawner(this); // <-- Llamás a SetSpawner
-            colaDeZombies.Enqueue(zombie); // Los agregamos a la cola
-            zombie.SetActive(false); // Muy importante: desactivarlos al principio
+            GameObject zombie = Instantiate(zombiePrefab);
+            zombie.GetComponent<zombie>().SetSpawner(this);
+            colaDeZombies.Enqueue(zombie);
+            zombie.SetActive(false);
         }
     }
 
@@ -26,23 +36,61 @@ public class Spawner : MonoBehaviour
     {
         currentTime += Time.deltaTime;
 
-        if (currentTime >= tiempoSpawn)
+        if (currentTime >= tiempoSpawn && colaDeZombies.Count() > 0)
         {
-            // Si hay zombies disponibles en la cola, los reutilizamos
-            if (colaDeZombies.Count() > 0)
+            GameObject zombie = colaDeZombies.Dequeue();
+            zombie.SetActive(true);
+
+            // Elegir carril aleatorio: 0 = arriba, 1 = medio, 2 = abajo
+            int carril = Random.Range(0, cantidadCarriles);
+            int nodoInicio = 1 + carril * nodosPorCarril;
+            int nodoFinal = nodoInicio + nodosPorCarril - 1;
+
+            zombie.transform.position = posicionesNodos[nodoInicio];
+            zombie.GetComponent<zombie>().SetRutaConGrafo(grafo, nodoInicio, nodoFinal, posicionesNodos);
+
+            currentTime = 0f;
+        }
+    }
+
+    void InicializarGrafo()
+    {
+        grafo = new GrafoMA();
+        grafo.InicializarGrafo();
+        posicionesNodos = new Dictionary<int, Vector2>();
+
+        float[] posicionesY = { -9.85f, -17.15f, -24.31f }; // Posiciones Y de los carriles
+
+        int id = 1;
+        float espaciado = 1.9f;  // separación entre nodos
+
+        for (int carril = 0; carril < cantidadCarriles; carril++)
+        {
+            float y = posicionesY[carril];
+
+            for (int i = 0; i < nodosPorCarril; i++)
             {
-                GameObject zombie = colaDeZombies.Dequeue(); // Extraemos el primer zombie de la cola
-                zombie.SetActive(true); // Activamos el zombie
+                grafo.AgregarVertice(id);
+                posicionesNodos[id] = new Vector2(xInicial + (i * espaciado), y);
 
-                // Generamos una posición Y aleatoria entre transform.position.y - 18 y transform.position.y - 7
-                float randomY = Random.value > 0.5f ? -18f : -6.6f;
+                if (i > 0)
+                {
+                    grafo.AgregarArista(id - 1, id, 1);
+                }
 
-                // Actualizamos la posición del zombie
-                zombie.transform.position = new Vector3(transform.position.x, randomY, transform.position.z);
-                zombie.transform.rotation = transform.rotation; // Lo rotamos igual que el spawner
+                // Conexiones verticales entre carriles cada 5 nodos
+                if (i % 5 == 0 && carril < cantidadCarriles - 1)
+                {
+                    int nodoActual = id;
+                    int nodoInferior = id + nodosPorCarril;
+                    grafo.AgregarArista(nodoActual, nodoInferior, 1);
+                    grafo.AgregarArista(nodoInferior, nodoActual, 1);
+                }
+
+                id++;
             }
-
-            currentTime = 0f; // Reiniciamos el temporizador
         }
     }
 }
+
+
