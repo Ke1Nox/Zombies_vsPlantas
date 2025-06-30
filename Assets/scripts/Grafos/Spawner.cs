@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,15 +13,14 @@ public class Spawner : MonoBehaviour
     public GrafoMA grafo;
     public Dictionary<int, Vector2> posicionesNodos;
 
-   public int cantidadCarriles = 3;
-     public int nodosPorCarril = 48;
+    public int cantidadCarriles = 3;
+    public int nodosPorCarril = 48;
     [SerializeField] float xInicial = -50f;
 
     void Start()
     {
         InicializarGrafo();
 
-        // Instanciar 3 comunes y 3 inteligentes para el pool
         for (int i = 0; i < 3; i++)
         {
             GameObject z1 = Instantiate(zombieComun);
@@ -32,7 +30,6 @@ public class Spawner : MonoBehaviour
 
             GameObject z2 = Instantiate(zombieInteligente);
             z2.GetComponent<ZombieInteligente>()?.SetSpawner(this);
-
             colaDeZombies.Enqueue(z2);
             z2.SetActive(false);
         }
@@ -48,8 +45,42 @@ public class Spawner : MonoBehaviour
             zombie.SetActive(true);
 
             int carril = Random.Range(0, cantidadCarriles);
-            int nodoInicio = 1 + carril * nodosPorCarril;
-            int nodoFinal = nodoInicio + nodosPorCarril - 2;
+            int nodoInicio = -1;
+
+            // Buscar primer nodo libre en el carril
+            for (int i = 0; i < nodosPorCarril; i++)
+            {
+                int nodo = 1 + carril * nodosPorCarril + i;
+                Vector2 pos = posicionesNodos[nodo];
+
+                Collider2D[] colisiones = Physics2D.OverlapCircleAll(pos, 0.25f);
+                bool ocupado = false;
+
+                foreach (var c in colisiones)
+                {
+                    if (c.CompareTag("muro") || c.CompareTag("torre"))
+                    {
+                        ocupado = true;
+                        break;
+                    }
+                }
+
+                if (!ocupado)
+                {
+                    nodoInicio = nodo;
+                    break;
+                }
+            }
+
+            if (nodoInicio == -1)
+            {
+                Debug.LogWarning($"No hay nodo libre en carril {carril}, no se spawnea zombie.");
+                zombie.SetActive(false);
+                colaDeZombies.Enqueue(zombie);
+                return;
+            }
+
+            int nodoFinal = nodoInicio + (nodosPorCarril - (nodoInicio % nodosPorCarril)) - 1;
 
             zombie.transform.position = posicionesNodos[nodoInicio];
 
@@ -73,7 +104,6 @@ public class Spawner : MonoBehaviour
         posicionesNodos = new Dictionary<int, Vector2>();
 
         float[] posicionesY = { -9.85f, -17.15f, -24.31f };
-
         int id = 1;
         float espaciado = 1.9f;
 
@@ -104,6 +134,7 @@ public class Spawner : MonoBehaviour
         }
     }
 }
+
 
 
 
