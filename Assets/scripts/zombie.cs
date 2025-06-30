@@ -38,7 +38,7 @@ public class zombie : MonoBehaviour
         {
             TiempoSigienteDaño -= Time.deltaTime;
 
-            GameManager.Instance.CheckDead(1);
+            GameManager.Instance.DamageTower(1);
         }
     }
 

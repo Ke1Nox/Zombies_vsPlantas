@@ -30,10 +30,9 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         if (torreScript != null)
-            torreScript.OnGetDamange += CheckDead;
-
-        if (turret != null)
-            turret.SetActive(false);
+        {
+            torreScript.OnGetDamange += DamageTower;
+        }
     }
 
     private void Update()
@@ -45,11 +44,11 @@ public class GameManager : MonoBehaviour
     {
         if (currentLevel == 1 && puntos >= 50)
         {
-           LoadScene(3);// Ganas Nivel 1 → Win1
+           LoadScene(2);// Ganas Nivel 1 → Win1
         }
-        else if (currentLevel == 2 && puntos >= 1000)
+        else if (currentLevel == 2 && puntos >= 50)
         {
-            LoadScene(5); // Ganas Nivel 2 → Win2 (Victoria Final)
+            LoadScene(4); // Ganas Nivel 2 → Win2 (Victoria Final)
         }
     }
 
@@ -59,18 +58,34 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(sceneIndex);
     }
 
-    public void CheckDead(int daño)
+    public void DamageTower(int daño)
     {
-        vidaTorre -= 10;
+        vidaTorre -= daño;
         if (vidaTorre <= 0)
         {
-            SceneManager.LoadScene(2); // Escena Fail (Game Over)
+            SceneManager.LoadScene(5); // Escena Fail (Game Over)
         }
     }
 
     public void SumarPuntos(float cantidad)
     {
         puntos += cantidad;
+    }
+
+    public void ReiniciarNivel()
+    {
+        if (currentLevel == 1)
+        {
+            SceneManager.LoadScene(1); // Nivel 1: "juego"
+        }
+        else if (currentLevel == 2)
+        {
+            SceneManager.LoadScene(3); // Nivel 2: "lvl2"
+        }
+
+        // Reiniciar valores si querés
+        vidaTorre = 1000;
+        puntos = 0;
     }
 }
 
