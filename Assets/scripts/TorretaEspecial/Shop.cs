@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,7 +16,7 @@ public class Shop : MonoBehaviour
             if (GameManager.Instance.GastarMonedas(50))
             {
                 Instantiate(prefabTorreEspecial, transform.position, Quaternion.identity);
-                Debug.Log("Spawnéo torre");
+                Debug.Log("SpawnÃ©o torre");
             }
             else
             {
@@ -33,13 +33,13 @@ public class Shop : MonoBehaviour
                 {
                     Vector2 pos = spawner.posicionesNodos[nodoDisponible];
 
-                    // Desplazamos visualmente solo el muro, sin romper la lógica del nodo
+                    // Desplazamos visualmente solo el muro, sin romper la lÃ³gica del nodo
                     Vector2 desplazamiento = new Vector2(-0.4f, 0f);
                     Instantiate(prefabMuro, pos + desplazamiento, Quaternion.identity);
                 }
                 else
                 {
-                    Debug.Log("No se encontró ningún nodo disponible para el muro");
+                    Debug.Log("No se encontrÃ³ ningÃºn nodo disponible para el muro");
                 }
             }
             else
@@ -55,22 +55,29 @@ public class Shop : MonoBehaviour
         int nodosPorCarril = spawner.nodosPorCarril;
         int cantidadCarriles = spawner.cantidadCarriles;
 
-        // Probar desde el último nodo de cada carril hacia el primero (zona más peligrosa)
-        for (int columna = nodosPorCarril - 1; columna >= 5; columna--)
-        {
-            for (int carril = 0; carril < cantidadCarriles; carril++)
-            {
-                int nodo = 1 + carril * nodosPorCarril + columna;
-                Vector2 pos = spawner.posicionesNodos[nodo];
+        // CENTRAR bÃºsqueda alrededor de columna 30 (x â‰ˆ 6)
+        int columnaCentral = 30;
+        int rango = 5;
 
-                if (!EstaOcupado(pos))
+        for (int offset = 0; offset <= rango; offset++)
+        {
+            int[] columnas = { columnaCentral - offset, columnaCentral + offset };
+
+            foreach (int columna in columnas)
+            {
+                if (columna < 5 || columna >= nodosPorCarril) continue;
+
+                for (int carril = 0; carril < cantidadCarriles; carril++)
                 {
-                    return nodo;
+                    int nodo = 1 + carril * nodosPorCarril + columna;
+                    Vector2 pos = spawner.posicionesNodos[nodo];
+
+                    if (!EstaOcupado(pos))
+                        return nodo;
                 }
             }
         }
-
-        return -1; // todos los carriles están llenos
+        return -1; // todos los carriles estÃ¡n llenos
     }
 
     bool EstaOcupado(Vector2 pos)
@@ -78,7 +85,7 @@ public class Shop : MonoBehaviour
         Collider2D[] colliders = Physics2D.OverlapCircleAll(pos, 0.25f);
         foreach (var col in colliders)
         {
-            if (col.CompareTag("muro") || col.CompareTag("torre") || col.CompareTag("obstaculo"))
+            if (col.CompareTag("muro") || col.CompareTag("torre"))
                 return true;
         }
         return false;

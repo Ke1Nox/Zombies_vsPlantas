@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class Spawner : MonoBehaviour
@@ -19,6 +19,7 @@ public class Spawner : MonoBehaviour
 
     void Start()
     {
+
         InicializarGrafo();
 
         for (int i = 0; i < 3; i++)
@@ -86,17 +87,52 @@ public class Spawner : MonoBehaviour
 
             if (zombie.TryGetComponent<zombie>(out var zombieComun))
             {
-                zombieComun.SetRutaConGrafo(grafo, nodoInicio, nodoFinal, posicionesNodos);
+                Dijkstra dijkstra = new Dijkstra(grafo);
+                List<int> ruta = dijkstra.CalcularCamino(nodoInicio, nodoFinal);
+                zombieComun.SetRutaManual(ruta, posicionesNodos);
             }
             else if (zombie.TryGetComponent<ZombieInteligente>(out var zombieInteligente))
             {
-                zombieInteligente.SetRutaConGrafo(grafo, nodoInicio, nodoFinal, posicionesNodos);
+                Dijkstra dijkstra = new Dijkstra(grafo);
+                List<int> ruta = dijkstra.CalcularCamino(nodoInicio, nodoFinal);
+                zombieInteligente.SetRutaManual(ruta, posicionesNodos);
             }
 
             currentTime = 0f;
         }
     }
+    void OnDrawGizmos()
+    {
+        if (posicionesNodos == null) return;
 
+        Gizmos.color = Color.gray;
+        foreach (var par in posicionesNodos)
+        {
+            Gizmos.DrawSphere(par.Value, 0.1f);
+        }
+
+        // Dibujar nodos bloqueados
+        HashSet<int> bloqueados = new HashSet<int>();
+        foreach (var par in posicionesNodos)
+        {
+            Collider2D[] col = Physics2D.OverlapCircleAll(par.Value, 0.25f);
+            foreach (var c in col)
+            {
+                if (c.CompareTag("muro"))
+                {
+                    bloqueados.Add(par.Key);
+                    break;
+                }
+            }
+        }
+
+        Gizmos.color = Color.red;
+        foreach (var id in bloqueados)
+        {
+            if (posicionesNodos.ContainsKey(id))
+                Gizmos.DrawSphere(posicionesNodos[id], 0.15f);
+        }
+    }
     void InicializarGrafo()
     {
         grafo = new GrafoMA();
@@ -121,7 +157,8 @@ public class Spawner : MonoBehaviour
                     grafo.AgregarArista(id - 1, id, 1);
                 }
 
-                if (i % 5 == 0 && carril < cantidadCarriles - 1)
+                // Conectar con carril inferior (vertical)
+                if (carril < cantidadCarriles - 1)
                 {
                     int nodoActual = id;
                     int nodoInferior = id + nodosPorCarril;
@@ -134,6 +171,7 @@ public class Spawner : MonoBehaviour
         }
     }
 }
+
 
 
 

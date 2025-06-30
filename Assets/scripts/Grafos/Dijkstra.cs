@@ -19,6 +19,7 @@ public class Dijkstra
     public Dijkstra(GrafoMA grafo)
     {
         this.grafo = grafo;
+        this.nodosBloqueados = new HashSet<int>(); // <- AGREGALO ACÁ
     }
 
     public List<int> CalcularCamino(int origen, int destino)

@@ -332,7 +332,7 @@ Transform:
   m_GameObject: {fileID: 185912011}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0.008726558, w: 0.999962}
-  m_LocalPosition: {x: 39.6504, y: -12.6287, z: 0}
+  m_LocalPosition: {x: 40.38, y: -12.63, z: 0}
   m_LocalScale: {x: 1.9930093, y: 1.9300352, z: 1.5041}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -368,6 +368,37 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1026695825}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &361982054
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 361982055}
+  m_Layer: 0
+  m_Name: GameObject (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &361982055
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 361982054}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 6, y: -14.8, z: -0.2557936}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &437270408
 GameObject:
@@ -1256,7 +1287,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   vida: 1000
-  vidaMax: 1000
   "tiempoEntreDa\xF1os": 1
 --- !u!1 &811811637
 GameObject:
@@ -2346,10 +2376,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38b2d565f6af5814e924b6d4b2781bf3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  zombiePrefab: {fileID: 30142194095720047, guid: a70cd427e84bbca41a441f75a9636200, type: 3}
+  zombieComun: {fileID: 30142194095720047, guid: a70cd427e84bbca41a441f75a9636200, type: 3}
+  zombieInteligente: {fileID: 5363003618223355719, guid: 935bffc4a32974248ac23fc9d30a85a1, type: 3}
   tiempoSpawn: 2
   cantidadCarriles: 3
-  nodosPorCarril: 27
+  nodosPorCarril: 48
   xInicial: -50
 --- !u!4 &1680707475
 Transform:
@@ -2360,7 +2391,7 @@ Transform:
   m_GameObject: {fileID: 1680707473}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -50, y: -6.6, z: 1}
+  m_LocalPosition: {x: -47.75, y: -13.31, z: 1}
   m_LocalScale: {x: 0.97236, y: 0.97236, z: 0.97236}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2768,7 +2799,6 @@ MonoBehaviour:
   prefabTorreEspecial: {fileID: 4266235436044528322, guid: 8646e6f91b6d8f4488731e87bd5cf8bc, type: 3}
   prefabMuro: {fileID: 1374807764084678461, guid: 5b2cde0227bf9e444a9b164d374fb3cf, type: 3}
   spawner: {fileID: 1680707474}
-  idNodo: 1
 --- !u!1 &1896525130
 GameObject:
   m_ObjectHideFlags: 0
@@ -3188,3 +3218,4 @@ SceneRoots:
   - {fileID: 2007862261}
   - {fileID: 1855540493}
   - {fileID: 505499313}
+  - {fileID: 361982055}
