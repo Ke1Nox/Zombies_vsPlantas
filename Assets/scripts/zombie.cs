@@ -19,6 +19,8 @@ public class zombie : MonoBehaviour
     private Dictionary<int, Vector2> posiciones;
     private int indiceActual = 0;
 
+
+
     void Start()
     {
         rb2D = GetComponent<Rigidbody2D>();
@@ -85,7 +87,12 @@ public class zombie : MonoBehaviour
             }
         }
     }
-
+    public void SetRutaManual(List<int> ruta, Dictionary<int, Vector2> posiciones)
+    {
+        this.ruta = ruta;
+        this.posiciones = posiciones;
+        indiceActual = 0;
+    }
     private void LlegarATorre()
     {
         GameManager.Instance.DamageTower(vidaZombie);
