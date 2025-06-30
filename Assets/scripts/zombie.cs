@@ -9,9 +9,8 @@ public class zombie : MonoBehaviour
     public float vel = 5f;
     Rigidbody2D rb2D;
     [SerializeField] private float TiempoEntreDaño = 2f;
-    private float TiempoSigienteDaño=5;
-
-
+    private float TiempoSigienteDaño = 5;
+    public int Vida => vidaZombie;
 
     private Spawner spawner;
 
@@ -22,7 +21,8 @@ public class zombie : MonoBehaviour
         rb2D = GetComponent<Rigidbody2D>();
         vidaZombie = maximoVidaZ;
 
-        spawner = FindObjectOfType<Spawner>();
+        // Reemplazar FindObjectOfType con FindFirstObjectByType para evitar el uso de métodos obsoletos
+        spawner = Object.FindFirstObjectByType<Spawner>();
     }
 
     //movimiento zombie
@@ -31,7 +31,6 @@ public class zombie : MonoBehaviour
         rb2D.MovePosition(new Vector2(transform.position.x, transform.position.y) + Vector2.right * vel * Time.fixedDeltaTime);
     }
 
-   
     private void OnTriggerStay2D(Collider2D other)
     {
         if (other.CompareTag("torre"))
@@ -41,7 +40,6 @@ public class zombie : MonoBehaviour
             GameManager.Instance.DamageTower(1);
         }
     }
-
 
     public void TomarDañoZ(int daño)
     {
@@ -58,5 +56,6 @@ public class zombie : MonoBehaviour
         spawner.GetComponent<Spawner>().colaDeZombies.Enqueue(gameObject); // Reincorporar al pool de zombies
         vidaZombie = 100;
         GameManager.Instance.SumarPuntos(50);
+        GameManager.Instance.SumarMonedas(100);
     }
 }

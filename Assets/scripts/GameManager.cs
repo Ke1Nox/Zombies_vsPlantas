@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -9,6 +11,10 @@ public class GameManager : MonoBehaviour
 
     public int vidaTorre = 1000;
     public float puntos = 0;
+
+    public int monedas = 0; 
+    public TextMeshProUGUI textoMonedas; // << Opcional, asignar desde el editor
+
     public int currentLevel = 1; // 1 = primer nivel, 2 = segundo nivel
 
     public TorreScript torreScript;
@@ -33,6 +39,8 @@ public class GameManager : MonoBehaviour
         {
             torreScript.OnGetDamange += DamageTower;
         }
+       
+        ActualizarUI(); // << Actualiza UI al iniciar
     }
 
     private void Update()
@@ -42,11 +50,11 @@ public class GameManager : MonoBehaviour
 
     void CheckLevelProgress()
     {
-        if (currentLevel == 1 && puntos >= 50)
+        if (currentLevel == 1 && puntos >= 500)
         {
            LoadScene(2);// Ganas Nivel 1 → Win1
         }
-        else if (currentLevel == 2 && puntos >= 50)
+        else if (currentLevel == 2 && puntos >= 500)
         {
             LoadScene(4); // Ganas Nivel 2 → Win2 (Victoria Final)
         }
@@ -70,6 +78,28 @@ public class GameManager : MonoBehaviour
     public void SumarPuntos(float cantidad)
     {
         puntos += cantidad;
+    }
+
+    public void SumarMonedas(int cantidad)
+    {
+        monedas += cantidad;
+        ActualizarUI();
+    }
+    public bool GastarMonedas(int cantidad)
+    {
+        if (monedas >= cantidad)
+        {
+            monedas -= cantidad;
+            ActualizarUI();
+            return true;
+        }
+        return false;
+    }
+
+    void ActualizarUI()
+    {
+        if (textoMonedas != null)
+            textoMonedas.text = "Monedas: " + monedas;
     }
 
     public void ReiniciarNivel()

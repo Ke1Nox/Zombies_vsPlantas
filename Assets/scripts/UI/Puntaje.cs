@@ -7,21 +7,16 @@ public class Puntaje : MonoBehaviour
     private float Puntos;
     private TextMeshProUGUI textMesh;
 
-   
-
     private void Start()
     {
         textMesh = GetComponent<TextMeshProUGUI>();
         
     }
 
-   
     private void Update()
     {
         Puntos = GameManager.Instance.puntos;
         textMesh.text = Puntos.ToString("0");
     }
-
-
     
 }

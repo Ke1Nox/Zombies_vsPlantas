@@ -7,21 +7,25 @@ public class Bullet : MonoBehaviour
     public float speed = 5f;
     public int damage = 10;
 
-    void Update()
+    Rigidbody2D rb;
+
+    void Start()
     {
-        transform.Translate(Vector2.right * speed * Time.deltaTime);
+        rb = GetComponent<Rigidbody2D>();
+        if (rb == null) Debug.LogWarning("Falta Rigidbody2D en la bala.");
     }
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Torre"))
+        if (collision.CompareTag("zombie"))
         {
-            GameManager.Instance.DamageTower(damage);
+            collision.GetComponent<zombie>().TomarDañoZ(50);
             Destroy(gameObject);
         }
-        else if (collision.CompareTag("Wall")) // Para que no siga volando para siempre
+        else if (collision.CompareTag("Wall"))
         {
             Destroy(gameObject);
         }
     }
+
 }
