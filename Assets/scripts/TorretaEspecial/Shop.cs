@@ -32,7 +32,10 @@ public class Shop : MonoBehaviour
                 if (nodoDisponible != -1)
                 {
                     Vector2 pos = spawner.posicionesNodos[nodoDisponible];
-                    Instantiate(prefabMuro, pos, Quaternion.identity);
+
+                    // Desplazamos visualmente solo el muro, sin romper la lógica del nodo
+                    Vector2 desplazamiento = new Vector2(-0.4f, 0f);
+                    Instantiate(prefabMuro, pos + desplazamiento, Quaternion.identity);
                 }
                 else
                 {
@@ -44,6 +47,7 @@ public class Shop : MonoBehaviour
                 Debug.Log("No hay suficientes monedas");
             }
         }
+
     }
 
     int BuscarNodoParaMuro()
@@ -52,7 +56,7 @@ public class Shop : MonoBehaviour
         int cantidadCarriles = spawner.cantidadCarriles;
 
         // Probar desde el último nodo de cada carril hacia el primero (zona más peligrosa)
-        for (int columna = nodosPorCarril - 1; columna >= 0; columna--)
+        for (int columna = nodosPorCarril - 1; columna >= 5; columna--)
         {
             for (int carril = 0; carril < cantidadCarriles; carril++)
             {
