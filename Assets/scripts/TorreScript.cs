@@ -8,7 +8,7 @@ public class TorreScript : MonoBehaviour
 {
     public Action<int> OnGetDamange;
     public int vida = 1000;
-    [SerializeField] int vidaMax = 1000;
+    //[SerializeField] int vidaMax = 1000;
     [SerializeField] float tiempoEntreDaños = 1f; // Tiempo en segundos entre golpes
     private float timerDaño;
 

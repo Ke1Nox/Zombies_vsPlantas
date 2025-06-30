@@ -48,7 +48,7 @@ public class armaPJ : MonoBehaviour
 
             else
             {
-                Debug.Log("sin balas: esperando a recargar.");
+            
                 puedeDisparar = false;
                 enRecarga = true;
                 tiempoRecargando += 1f; // Empezamos a contar
@@ -66,7 +66,7 @@ public class armaPJ : MonoBehaviour
             tiempoRecargando += Time.deltaTime;
             if (tiempoRecargando >= tiempoRecarga)
             {
-                Debug.Log("Recarga completa.");
+             
                 puedeDisparar = true;
                 enRecarga = false;
             }

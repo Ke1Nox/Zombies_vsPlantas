@@ -33,7 +33,22 @@ public class BalaPJ : MonoBehaviour
     {
         if (collision.CompareTag("zombie"))
         {
-            collision.GetComponent<zombie>().TomarDañoZ(25);
+            // Intenta dañar un zombie común
+            var zombieComun = collision.GetComponent<zombie>();
+            if (zombieComun != null)
+            {
+                zombieComun.TomarDañoZ(25);
+            }
+            else
+            {
+                // Si no es común, probá si es inteligente
+                var zombieInteligente = collision.GetComponent<ZombieInteligente>();
+                if (zombieInteligente != null)
+                {
+                    zombieInteligente.TomarDañoZ(25);
+                }
+            }
+
             pool.DevolverBala(this);
         }
     }
