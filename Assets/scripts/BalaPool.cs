@@ -47,18 +47,18 @@ public class BalaPool : MonoBehaviour
                 BalaPJ bala = pool.Pop();
                 bala.gameObject.SetActive(true);
                 activeBalas++;  // Aumentamos el contador de balas activas
-                Debug.Log("Se obtuvo una bala del pool. Pila actual: " + pool.Count + ", Balas activas: " + activeBalas);
+                
                 return bala;
             }
             else
             {
-                Debug.Log("No hay balas disponibles en el pool.");
+             
                 return null;  // Si no hay balas en el pool y ya alcanzamos el límite de balas activas, no creamos más
             }
         }
         else
         {
-            Debug.Log("Se alcanzó el máximo de balas activas.");
+            
             return null;  // No se puede obtener una nueva bala si ya hay balas activas en el límite
         }
     }
@@ -68,7 +68,7 @@ public class BalaPool : MonoBehaviour
         bala.gameObject.SetActive(false);
         pool.Push(bala);
         activeBalas--;  // Disminuimos el contador de balas activas
-        Debug.Log("Se devolvió una bala al pool. Pila actual: " + pool.Count + ", Balas activas: " + activeBalas);
+       
     }
 
 

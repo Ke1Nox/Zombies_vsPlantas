@@ -18,7 +18,7 @@ public class GrafoMA : IGrafoTDA
     private int[,] MAdy;
     private int[] Etiqs;
     private int cantNodos;
-    private int n = 100;
+    private int n = 200;
 
     public void InicializarGrafo()
     {

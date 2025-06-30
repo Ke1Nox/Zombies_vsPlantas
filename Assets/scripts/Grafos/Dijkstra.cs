@@ -8,6 +8,14 @@ public class Dijkstra
     private Dictionary<int, int> anteriores;
     private HashSet<int> visitados;
 
+    private HashSet<int> nodosBloqueados;
+
+    public Dijkstra(GrafoMA grafo, HashSet<int> nodosBloqueados = null)
+    {
+        this.grafo = grafo;
+        this.nodosBloqueados = nodosBloqueados ?? new HashSet<int>();
+    }
+
     public Dijkstra(GrafoMA grafo)
     {
         this.grafo = grafo;
@@ -15,6 +23,8 @@ public class Dijkstra
 
     public List<int> CalcularCamino(int origen, int destino)
     {
+        if (nodosBloqueados.Contains(origen) || nodosBloqueados.Contains(destino))
+            return new List<int>(); // no hay ruta válida si el origen o destino están bloqueados
         distancias = new Dictionary<int, int>();
         anteriores = new Dictionary<int, int>();
         visitados = new HashSet<int>();
@@ -38,7 +48,9 @@ public class Dijkstra
 
             foreach (int vecino in vertices)
             {
-                if (grafo.ExisteArista(actual, vecino) && !visitados.Contains(vecino))
+                if (grafo.ExisteArista(actual, vecino) &&
+        !visitados.Contains(vecino) &&
+        !nodosBloqueados.Contains(vecino)) //  Ignora nodo bloqueado
                 {
                     int nuevaDist = distancias[actual] + grafo.PesoArista(actual, vecino);
                     if (nuevaDist < distancias[vecino])

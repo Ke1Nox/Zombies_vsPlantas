@@ -4,31 +4,37 @@ using UnityEngine;
 
 public class Spawner : MonoBehaviour
 {
-
-    [SerializeField] GameObject zombiePrefab;
+    [SerializeField] GameObject zombieComun;
+    [SerializeField] GameObject zombieInteligente;
     [SerializeField] float tiempoSpawn = 2f;
     private float currentTime;
 
     public MyQueue<GameObject> colaDeZombies = new MyQueue<GameObject>();
 
     public GrafoMA grafo;
-
     public Dictionary<int, Vector2> posicionesNodos;
 
-    [SerializeField] private int cantidadCarriles = 3;
-    [SerializeField] private int nodosPorCarril = 28;
-    [SerializeField] float xInicial = -50f; // donde empiezan
+   public int cantidadCarriles = 3;
+     public int nodosPorCarril = 48;
+    [SerializeField] float xInicial = -50f;
 
     void Start()
     {
         InicializarGrafo();
 
-        for (int i = 0; i < 6; i++)
+        // Instanciar 3 comunes y 3 inteligentes para el pool
+        for (int i = 0; i < 3; i++)
         {
-            GameObject zombie = Instantiate(zombiePrefab);
-            zombie.GetComponent<zombie>().SetSpawner(this);
-            colaDeZombies.Enqueue(zombie);
-            zombie.SetActive(false);
+            GameObject z1 = Instantiate(zombieComun);
+            z1.GetComponent<zombie>().SetSpawner(this);
+            colaDeZombies.Enqueue(z1);
+            z1.SetActive(false);
+
+            GameObject z2 = Instantiate(zombieInteligente);
+            z2.GetComponent<ZombieInteligente>()?.SetSpawner(this);
+
+            colaDeZombies.Enqueue(z2);
+            z2.SetActive(false);
         }
     }
 
@@ -41,13 +47,20 @@ public class Spawner : MonoBehaviour
             GameObject zombie = colaDeZombies.Dequeue();
             zombie.SetActive(true);
 
-            // Elegir carril aleatorio: 0 = arriba, 1 = medio, 2 = abajo
             int carril = Random.Range(0, cantidadCarriles);
             int nodoInicio = 1 + carril * nodosPorCarril;
-            int nodoFinal = nodoInicio + nodosPorCarril - 1;
+            int nodoFinal = nodoInicio + nodosPorCarril - 2;
 
             zombie.transform.position = posicionesNodos[nodoInicio];
-            zombie.GetComponent<zombie>().SetRutaConGrafo(grafo, nodoInicio, nodoFinal, posicionesNodos);
+
+            if (zombie.TryGetComponent<zombie>(out var zombieComun))
+            {
+                zombieComun.SetRutaConGrafo(grafo, nodoInicio, nodoFinal, posicionesNodos);
+            }
+            else if (zombie.TryGetComponent<ZombieInteligente>(out var zombieInteligente))
+            {
+                zombieInteligente.SetRutaConGrafo(grafo, nodoInicio, nodoFinal, posicionesNodos);
+            }
 
             currentTime = 0f;
         }
@@ -59,10 +72,10 @@ public class Spawner : MonoBehaviour
         grafo.InicializarGrafo();
         posicionesNodos = new Dictionary<int, Vector2>();
 
-        float[] posicionesY = { -9.85f, -17.15f, -24.31f }; // Posiciones Y de los carriles
+        float[] posicionesY = { -9.85f, -17.15f, -24.31f };
 
         int id = 1;
-        float espaciado = 1.9f;  // separación entre nodos
+        float espaciado = 1.9f;
 
         for (int carril = 0; carril < cantidadCarriles; carril++)
         {
@@ -78,7 +91,6 @@ public class Spawner : MonoBehaviour
                     grafo.AgregarArista(id - 1, id, 1);
                 }
 
-                // Conexiones verticales entre carriles cada 5 nodos
                 if (i % 5 == 0 && carril < cantidadCarriles - 1)
                 {
                     int nodoActual = id;
@@ -92,5 +104,6 @@ public class Spawner : MonoBehaviour
         }
     }
 }
+
 
 

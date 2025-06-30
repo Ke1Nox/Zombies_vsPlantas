@@ -7,9 +7,7 @@ public class Shop : MonoBehaviour
     public GameObject prefabTorreEspecial;
     public GameObject prefabMuro;
 
-    public Spawner spawner; //  referencia al Spawner
-
-    public int idNodo = 1; // el nodo donde querés colocar el muro (podés cambiarlo o hacer que el jugador lo seleccione)
+    public Spawner spawner;
 
     void Update()
     {
@@ -18,7 +16,7 @@ public class Shop : MonoBehaviour
             if (GameManager.Instance.GastarMonedas(50))
             {
                 Instantiate(prefabTorreEspecial, transform.position, Quaternion.identity);
-                Debug.Log("spáwn torre");
+                Debug.Log("Spawnéo torre");
             }
             else
             {
@@ -30,7 +28,7 @@ public class Shop : MonoBehaviour
         {
             if (GameManager.Instance.GastarMonedas(50))
             {
-                int nodoDisponible = BuscarUltimoNodoLibre();
+                int nodoDisponible = BuscarNodoParaMuro();
                 if (nodoDisponible != -1)
                 {
                     Vector2 pos = spawner.posicionesNodos[nodoDisponible];
@@ -38,7 +36,7 @@ public class Shop : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("No se encontró un nodo libre para colocar el muro");
+                    Debug.Log("No se encontró ningún nodo disponible para el muro");
                 }
             }
             else
@@ -46,42 +44,39 @@ public class Shop : MonoBehaviour
                 Debug.Log("No hay suficientes monedas");
             }
         }
+    }
 
-        int BuscarUltimoNodoLibre()
+    int BuscarNodoParaMuro()
+    {
+        int nodosPorCarril = spawner.nodosPorCarril;
+        int cantidadCarriles = spawner.cantidadCarriles;
+
+        // Probar desde el último nodo de cada carril hacia el primero (zona más peligrosa)
+        for (int columna = nodosPorCarril - 1; columna >= 0; columna--)
         {
-            // Asumimos que hay 3 carriles, cada uno con N nodos
-            int nodosPorCarril = 27; // mismo valor que uses en Spawner
-            int cantidadCarriles = 3;
-
             for (int carril = 0; carril < cantidadCarriles; carril++)
             {
-                int baseNodo = 1 + carril * nodosPorCarril;
-                int ultimo = baseNodo + nodosPorCarril - 1;
+                int nodo = 1 + carril * nodosPorCarril + columna;
+                Vector2 pos = spawner.posicionesNodos[nodo];
 
-                // Buscamos desde el final hacia el principio
-                for (int i = ultimo; i >= baseNodo; i--)
+                if (!EstaOcupado(pos))
                 {
-                    Vector2 pos = spawner.posicionesNodos[i];
-                    Collider2D[] colliders = Physics2D.OverlapCircleAll(pos, 0.2f);
-
-                    bool ocupado = false;
-                    foreach (Collider2D col in colliders)
-                    {
-                        if (col.CompareTag("muro") || col.CompareTag("torre"))
-                        {
-                            ocupado = true;
-                            break;
-                        }
-                    }
-
-                    if (!ocupado)
-                    {
-                        return i;
-                    }
+                    return nodo;
                 }
             }
-
-            return -1; // no hay espacio
         }
+
+        return -1; // todos los carriles están llenos
+    }
+
+    bool EstaOcupado(Vector2 pos)
+    {
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(pos, 0.25f);
+        foreach (var col in colliders)
+        {
+            if (col.CompareTag("muro") || col.CompareTag("torre") || col.CompareTag("obstaculo"))
+                return true;
+        }
+        return false;
     }
 }

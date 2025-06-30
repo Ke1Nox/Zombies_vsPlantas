@@ -1,26 +1,23 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class zombie : MonoBehaviour
 {
-    [SerializeField] int vidaZombie;
     [SerializeField] int maximoVidaZ = 100;
-    public float vel = 5f;
-    Rigidbody2D rb2D;
     [SerializeField] private float TiempoEntreDaño = 2f;
-    private float TiempoSigienteDaño = 0;
-    public int Vida => vidaZombie;
+    [SerializeField] private float vel = 5f;
 
+    private int vidaZombie;
+    public int Vida => vidaZombie;
+    private float TiempoSigienteDaño = 0f;
+    private GameObject muroAnterior;
+
+    private Rigidbody2D rb2D;
     private Spawner spawner;
-    public Puntaje puntaje;
 
     private List<int> ruta;
     private Dictionary<int, Vector2> posiciones;
     private int indiceActual = 0;
-
-    // NUEVO: ¿Es zombie inteligente?
-    [SerializeField] bool esInteligente = false;
 
     void Start()
     {
@@ -31,84 +28,57 @@ public class zombie : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (ruta != null && indiceActual < ruta.Count)
+        if (ruta == null || indiceActual >= ruta.Count) return;
+
+        int nodoActual = ruta[indiceActual];
+        Vector2 destino = posiciones[nodoActual];
+
+        // Detectar muro en destino
+        Collider2D[] colisiones = Physics2D.OverlapCircleAll(destino, 0.25f);
+        GameObject muroDetectado = null;
+
+        foreach (var col in colisiones)
         {
-            int nodoActual = ruta[indiceActual];
-            Vector2 destino = posiciones[nodoActual];
-
-            // ?? Detectar si hay un muro en el nodo siguiente
-            Collider2D[] colisiones = Physics2D.OverlapCircleAll(destino, 0.2f);
-            bool hayMuro = false;
-            GameObject muroDetectado = null;
-
-            foreach (Collider2D col in colisiones)
+            if (col.CompareTag("muro"))
             {
-                if (col.CompareTag("muro"))
-                {
-                    hayMuro = true;
-                    muroDetectado = col.gameObject;
-                    break;
-                }
+                muroDetectado = col.gameObject;
+                break;
+            }
+        }
+
+        if (muroDetectado != null)
+        {
+            // Atacar muro si es nuevo
+            if (muroDetectado != muroAnterior)
+            {
+                TiempoSigienteDaño = 0f;
+                muroAnterior = muroDetectado;
             }
 
-            if (hayMuro)
+            if (TiempoSigienteDaño <= 0f)
             {
-                if (esInteligente)
+                Muro muro = muroDetectado.GetComponent<Muro>();
+                if (muro != null)
                 {
-                    Dijkstra dijkstra = new Dijkstra(spawner.grafo);
-
-                    int nodoActual1 = ruta[indiceActual];
-                    int nodosPorCarril = 28; // Asegurate que sea el mismo número que en Spawner
-                    int cantidadCarriles = 3;
-                    int destinoFinal = ruta[ruta.Count - 1];
-
-                    for (int carril = 0; carril < cantidadCarriles; carril++)
-                    {
-                        int nodoDestino = 1 + carril * nodosPorCarril + (nodosPorCarril - 1); // último nodo del carril
-
-                        if (nodoDestino == destinoFinal) continue;
-
-                        List<int> nuevaRuta = dijkstra.CalcularCamino(nodoActual1, nodoDestino);
-
-                        if (nuevaRuta.Count > 1)
-                        {
-                            ruta = nuevaRuta;
-                            indiceActual = 0;
-                            return;
-                        }
-                    }
-
-                    return; // no encontró rutas ? se quedaa
-                }
-                else
-                {
-                    // Zombie común ataca el muro
-                    if (TiempoSigienteDaño <= 0 && muroDetectado != null)
-                    {
-                        Muro muro = muroDetectado.GetComponent<Muro>();
-                        if (muro != null)
-                        {
-                            muro.TomarDaño(20); // DAÑO APLICADO
-                            TiempoSigienteDaño = TiempoEntreDaño;
-                        }
-                    }
-                    else
-                    {
-                        TiempoSigienteDaño -= Time.deltaTime;
-                    }
-                    return;
+                    muro.TomarDaño(40);
+                    TiempoSigienteDaño = TiempoEntreDaño;
                 }
             }
-
-            // Movimiento normal
-            Vector2 direccion = (destino - (Vector2)transform.position).normalized;
-            rb2D.MovePosition(rb2D.position + direccion * vel * Time.fixedDeltaTime);
-
-            if (Vector2.Distance(transform.position, destino) < 0.1f)
+            else
             {
-                indiceActual++;
+                TiempoSigienteDaño -= Time.deltaTime;
             }
 
+            return;
+        }
+
+        // Movimiento normal
+        Vector2 direccion = (destino - rb2D.position).normalized;
+        rb2D.MovePosition(rb2D.position + direccion * vel * Time.fixedDeltaTime);
+
+        if (Vector2.Distance(rb2D.position, destino) < 0.1f)
+        {
+            indiceActual++;
             if (indiceActual >= ruta.Count)
             {
                 LlegarATorre();
@@ -119,9 +89,7 @@ public class zombie : MonoBehaviour
     private void LlegarATorre()
     {
         GameManager.Instance.DamageTower(vidaZombie);
-        gameObject.SetActive(false);
-        spawner.colaDeZombies.Enqueue(gameObject);
-        vidaZombie = maximoVidaZ;
+        ReiniciarZombie();
     }
 
     public void TomarDañoZ(int daño)
@@ -130,25 +98,45 @@ public class zombie : MonoBehaviour
         if (vidaZombie <= 0) ZombieMuere();
     }
 
+    private void ZombieMuere()
+    {
+        GameManager.Instance.SumarPuntos(50);
+        GameManager.Instance.SumarMonedas(100);
+        ReiniciarZombie();
+    }
+
+    private void ReiniciarZombie()
+    {
+        gameObject.SetActive(false);
+        vidaZombie = maximoVidaZ;
+        spawner.colaDeZombies.Enqueue(gameObject);
+    }
+
     public void SetSpawner(Spawner spawnerReference)
     {
         spawner = spawnerReference;
     }
 
-    private void ZombieMuere()
-    {
-        gameObject.SetActive(false);
-        spawner.colaDeZombies.Enqueue(gameObject);
-        vidaZombie = maximoVidaZ;
-        GameManager.Instance.SumarPuntos(50);
-        GameManager.Instance.SumarMonedas(100);
-    }
-
     public void SetRutaConGrafo(GrafoMA grafo, int origen, int destino, Dictionary<int, Vector2> posicionesNodos)
     {
-        Dijkstra dijkstra = new Dijkstra(grafo);
-        ruta = dijkstra.CalcularCamino(origen, destino);
         posiciones = posicionesNodos;
+
+        HashSet<int> nodosBloqueados = new HashSet<int>();
+        foreach (var par in posicionesNodos)
+        {
+            Collider2D[] colisiones = Physics2D.OverlapCircleAll(par.Value, 0.25f);
+            foreach (var col in colisiones)
+            {
+                if (col.CompareTag("muro"))
+                {
+                    nodosBloqueados.Add(par.Key);
+                    break;
+                }
+            }
+        }
+
+        Dijkstra dijkstra = new Dijkstra(grafo, nodosBloqueados);
+        ruta = dijkstra.CalcularCamino(origen, destino);
         indiceActual = 0;
     }
 
@@ -161,5 +149,6 @@ public class zombie : MonoBehaviour
         }
     }
 }
+
 
 
