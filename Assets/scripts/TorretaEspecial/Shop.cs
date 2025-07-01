@@ -33,9 +33,9 @@ public class Shop : MonoBehaviour
                 {
                     Vector2 pos = spawner.posicionesNodos[nodoDisponible];
 
-                    // Desplazamos visualmente solo el muro, sin romper la lógica del nodo
-                    Vector2 desplazamiento = new Vector2(-0.4f, 0f);
-                    Instantiate(prefabMuro, pos + desplazamiento, Quaternion.identity);
+                    GameObject muro = Instantiate(prefabMuro, pos, Quaternion.identity);
+                    muro.tag = "muro";
+
                 }
                 else
                 {
@@ -55,29 +55,27 @@ public class Shop : MonoBehaviour
         int nodosPorCarril = spawner.nodosPorCarril;
         int cantidadCarriles = spawner.cantidadCarriles;
 
-        // CENTRAR búsqueda alrededor de columna 30 (x ≈ 6)
-        int columnaCentral = 30;
-        int rango = 5;
+        int columnaInicial = 30; // o la columna que quieras
+        int rangoColumnas = 10;  // hasta cuántas columnas hacia atrás buscar
 
-        for (int offset = 0; offset <= rango; offset++)
+        for (int carril = 0; carril < cantidadCarriles; carril++)
         {
-            int[] columnas = { columnaCentral - offset, columnaCentral + offset };
-
-            foreach (int columna in columnas)
+            for (int offset = 0; offset <= rangoColumnas; offset++)
             {
-                if (columna < 5 || columna >= nodosPorCarril) continue;
+                int columna = columnaInicial - offset;
+                if (columna < 0) break;
 
-                for (int carril = 0; carril < cantidadCarriles; carril++)
-                {
-                    int nodo = 1 + carril * nodosPorCarril + columna;
-                    Vector2 pos = spawner.posicionesNodos[nodo];
+                int nodo = 1 + columna * cantidadCarriles + carril;
+                if (!spawner.posicionesNodos.ContainsKey(nodo)) continue;
 
-                    if (!EstaOcupado(pos))
-                        return nodo;
-                }
+                Vector2 pos = spawner.posicionesNodos[nodo];
+
+                if (!EstaOcupado(pos))
+                    return nodo;
             }
         }
-        return -1; // todos los carriles están llenos
+
+        return -1; // todos los carriles llenos en el rango permitido
     }
 
     bool EstaOcupado(Vector2 pos)
