@@ -2,33 +2,27 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-
-
 public class TorreScript : MonoBehaviour
 {
     public Action<int> OnGetDamange;
     public int vida = 1000;
-    //[SerializeField] int vidaMax = 1000;
-    [SerializeField] float tiempoEntreDaños = 1f; // Tiempo en segundos entre golpes
-    private float timerDaño;
 
-    private void Update()
+    private void Awake()
     {
-        timerDaño += Time.deltaTime; // Aumenta el temporizador cada frame
+        OnGetDamange += RecibirDaño;
     }
 
-    private void OnCollisionStay2D(Collision2D other)
+    private void RecibirDaño(int daño)
     {
-        if (other.collider.CompareTag("zombie"))
+        vida -= daño;
+        Debug.Log($"Torre recibió {daño} de daño. Vida restante: {vida}");
+
+        if (vida <= 0)
         {
-            if (timerDaño >= tiempoEntreDaños)
-            {
-                int daño = 10; // Daño que hace el zombie
-                OnGetDamange?.Invoke(daño);
-                timerDaño = 0f; // Reseteamos el contador para que espere de nuevo
-            }
+            Debug.Log("¡La torre fue destruida!");
+            // Podés agregar lógica para game over, explosión, animación, etc.
         }
     }
-
 }
+
 

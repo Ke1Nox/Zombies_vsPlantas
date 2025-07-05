@@ -5,6 +5,15 @@ public class ZombieInteligente : MonoBehaviour
 {
     [SerializeField] private int vidaZombie = 100;
     [SerializeField] private float velocidad = 5f;
+    [SerializeField] private float tiempoReintento = 1.5f;
+    [SerializeField] private float tiempoEntreAtaques = 0.2f;
+    [SerializeField] private int dañoAlTorre = 10;
+
+    private float tiempoProximoIntento = 0f;
+    private float timerAtaqueTorre = 0f;
+
+    private bool atacandoTorre = false;
+    private TorreScript torreActual;
 
     private Rigidbody2D rb2D;
     private Spawner spawner;
@@ -23,9 +32,24 @@ public class ZombieInteligente : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (atacandoTorre && torreActual != null)
+        {
+            timerAtaqueTorre += Time.fixedDeltaTime;
+            if (timerAtaqueTorre >= tiempoEntreAtaques)
+            {
+                torreActual.OnGetDamange?.Invoke(dañoAlTorre);
+                timerAtaqueTorre = 0f;
+            }
+            return;
+        }
+
         if (esperandoRuta)
         {
-            RecalcularRutaEsquivando();
+            if (Time.time >= tiempoProximoIntento)
+            {
+                tiempoProximoIntento = Time.time + tiempoReintento;
+                RecalcularRutaEsquivando();
+            }
             return;
         }
 
@@ -48,11 +72,33 @@ public class ZombieInteligente : MonoBehaviour
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnTriggerStay2D(Collider2D other)
     {
-        if (collision.collider.CompareTag("muro"))
+        if (other.CompareTag("torre"))
         {
-            Debug.Log("Colisioné físicamente con un muro. Activando recálculo de ruta.");
+            atacandoTorre = true;
+            if (torreActual == null)
+            {
+                torreActual = other.GetComponent<TorreScript>();
+            }
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.CompareTag("torre"))
+        {
+            atacandoTorre = false;
+            torreActual = null;
+            timerAtaqueTorre = 0f;
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("muro"))
+        {
+            Debug.Log("Entré en un muro. Recalculando ruta.");
             esperandoRuta = true;
         }
     }
@@ -82,8 +128,7 @@ public class ZombieInteligente : MonoBehaviour
 
         int nodoActual = ruta[indiceActual];
         int columnaX = (nodoActual - 1) / carriles;
-
-        int carrilActual = (nodoActual - 1) / nodosPorCarril;
+        int carrilActual = (nodoActual - 1) % spawner.cantidadCarriles;
 
         List<int> ordenCarriles = new List<int>();
         if (carrilActual < carriles - 1) ordenCarriles.Add(carrilActual + 1); // abajo
@@ -122,14 +167,8 @@ public class ZombieInteligente : MonoBehaviour
             }
         }
 
-
-
-        esperandoRuta = true;
         Debug.Log("No se encontró ruta en el mismo X hacia arriba o abajo.");
     }
-
-
-
 
     public void SetSpawner(Spawner spawnerReference)
     {
@@ -143,19 +182,24 @@ public class ZombieInteligente : MonoBehaviour
         indiceActual = 0;
         esperandoRuta = false;
 
-        // Reposicionar al zombie en el primer nodo si es válido
         if (ruta != null && ruta.Count > 0 && posiciones.ContainsKey(ruta[0]))
         {
             transform.position = posiciones[ruta[0]];
         }
     }
 
-
     private void LlegarATorre()
     {
         GameManager.Instance.DamageTower(vidaZombie);
-        gameObject.SetActive(false);
-        spawner.colaDeZombies.Enqueue(gameObject);
+        ReiniciarZombie();
+    }
+
+    private void Morir()
+    {
+        ReiniciarZombie();
+        vidaZombie = 100;
+        GameManager.Instance.SumarPuntos(50);
+        GameManager.Instance.SumarMonedas(100);
     }
 
     public void TomarDañoZ(int daño)
@@ -165,13 +209,13 @@ public class ZombieInteligente : MonoBehaviour
             Morir();
     }
 
-    private void Morir()
+    private void ReiniciarZombie()
     {
+        atacandoTorre = false;
+        torreActual = null;
+        timerAtaqueTorre = 0f;
         gameObject.SetActive(false);
         spawner.colaDeZombies.Enqueue(gameObject);
-        vidaZombie = 100;
-        GameManager.Instance.SumarPuntos(50);
-        GameManager.Instance.SumarMonedas(100);
     }
 
     private void OnDrawGizmos()
@@ -186,3 +230,4 @@ public class ZombieInteligente : MonoBehaviour
         }
     }
 }
+

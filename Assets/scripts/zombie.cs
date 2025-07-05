@@ -6,6 +6,7 @@ public class zombie : MonoBehaviour
     [SerializeField] int maximoVidaZ = 100;
     [SerializeField] private float TiempoEntreDaño = 2f;
     [SerializeField] private float vel = 5f;
+    private bool atacandoTorre = false;
 
     private int vidaZombie;
     public int Vida => vidaZombie;
@@ -19,6 +20,12 @@ public class zombie : MonoBehaviour
     private Dictionary<int, Vector2> posiciones;
     private int indiceActual = 0;
 
+    private TorreScript torreActual;
+    private float timerAtaqueTorre = 0f;
+    [SerializeField] private float tiempoEntreAtaques = 0.2f;
+    [SerializeField] private int dañoAlTorre = 10;
+
+
 
 
     void Start()
@@ -30,6 +37,19 @@ public class zombie : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (atacandoTorre && torreActual != null)
+        {
+            timerAtaqueTorre += Time.fixedDeltaTime;
+
+            if (timerAtaqueTorre >= tiempoEntreAtaques)
+            {
+                torreActual.OnGetDamange?.Invoke(dañoAlTorre);
+                timerAtaqueTorre = 0f;
+            }
+
+            return;
+        }
+
         if (ruta == null || indiceActual >= ruta.Count) return;
 
         int nodoActual = ruta[indiceActual];
@@ -114,8 +134,11 @@ public class zombie : MonoBehaviour
 
     private void ReiniciarZombie()
     {
-        gameObject.SetActive(false);
+        atacandoTorre = false;
         vidaZombie = maximoVidaZ;
+        ruta = null;
+        indiceActual = 0;
+        gameObject.SetActive(false);
         spawner.colaDeZombies.Enqueue(gameObject);
     }
 
@@ -151,10 +174,14 @@ public class zombie : MonoBehaviour
     {
         if (other.CompareTag("torre"))
         {
-            TiempoSigienteDaño -= Time.deltaTime;
-            GameManager.Instance.DamageTower(1);
+            atacandoTorre = true;
+            if (torreActual == null)
+            {
+                torreActual = other.GetComponent<TorreScript>();
+            }
         }
     }
+
 }
 
 

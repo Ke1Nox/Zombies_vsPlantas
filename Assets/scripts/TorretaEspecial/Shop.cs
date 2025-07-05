@@ -54,12 +54,50 @@ public class Shop : MonoBehaviour
     {
         int nodosPorCarril = spawner.nodosPorCarril;
         int cantidadCarriles = spawner.cantidadCarriles;
+        int columnaInicial = 30;
+        int rangoColumnas = 10;
 
-        int columnaInicial = 30; // o la columna que quieras
-        int rangoColumnas = 10;  // hasta cuántas columnas hacia atrás buscar
+        // Obtener todos los muros existentes
+        GameObject[] muros = GameObject.FindGameObjectsWithTag("muro");
 
+        if (muros.Length >= 2)
+        {
+            Debug.Log("Ya hay 2 muros colocados");
+            return -1;
+        }
+
+        // Obtener carriles ocupados por los muros existentes
+        HashSet<int> carrilesOcupados = new HashSet<int>();
+        foreach (GameObject muro in muros)
+        {
+            Vector2 pos = muro.transform.position;
+
+            // Buscar en qué carril está
+            for (int carril = 0; carril < cantidadCarriles; carril++)
+            {
+                for (int offset = 0; offset <= rangoColumnas; offset++)
+                {
+                    int columna = columnaInicial - offset;
+                    if (columna < 0) break;
+
+                    int nodo = 1 + columna * cantidadCarriles + carril;
+                    if (!spawner.posicionesNodos.ContainsKey(nodo)) continue;
+
+                    Vector2 nodoPos = spawner.posicionesNodos[nodo];
+                    if (Vector2.Distance(pos, nodoPos) < 0.1f)
+                    {
+                        carrilesOcupados.Add(carril);
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Buscar un carril libre
         for (int carril = 0; carril < cantidadCarriles; carril++)
         {
+            if (carrilesOcupados.Contains(carril)) continue;
+
             for (int offset = 0; offset <= rangoColumnas; offset++)
             {
                 int columna = columnaInicial - offset;
@@ -75,8 +113,9 @@ public class Shop : MonoBehaviour
             }
         }
 
-        return -1; // todos los carriles llenos en el rango permitido
+        return -1;
     }
+
 
     bool EstaOcupado(Vector2 pos)
     {

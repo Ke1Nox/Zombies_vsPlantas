@@ -42,12 +42,10 @@ public class Spawner : MonoBehaviour
         if (currentTime >= tiempoSpawn && colaDeZombies.Count() > 0)
         {
             GameObject zombie = colaDeZombies.Dequeue();
-            zombie.SetActive(true);
 
             int carril = Random.Range(0, cantidadCarriles);
             int nodoInicio = -1;
 
-            // Buscar primer nodo libre en el carril
             for (int i = 0; i < nodosPorCarril; i++)
             {
                 int nodo = 1 + i * cantidadCarriles + carril;
@@ -80,11 +78,13 @@ public class Spawner : MonoBehaviour
                 return;
             }
 
-            // Cálculo correcto del nodo final al final del carril
             int nodoFinal = 1 + (nodosPorCarril - 1) * cantidadCarriles + carril;
 
             zombie.transform.position = posicionesNodos[nodoInicio];
+            zombie.transform.rotation = Quaternion.identity;
+            zombie.SetActive(true); // ⚠️ Activar después de posicionarlo
 
+            // ✅ Asignar ruta nueva siempre que sale de la cola
             if (zombie.TryGetComponent<zombie>(out var zombieComun))
             {
                 Dijkstra dijkstra = new Dijkstra(grafo);
@@ -102,33 +102,30 @@ public class Spawner : MonoBehaviour
         }
     }
 
-
     void InicializarGrafo()
     {
         grafo = new GrafoMA();
         grafo.InicializarGrafo();
         posicionesNodos = new Dictionary<int, Vector2>();
 
-        float[] posicionesY = { -9.85f, -17.15f, -24.31f }; // Carriles 0,1,2
+        float[] posicionesY = { -9.85f, -17.15f, -24.31f };
         float espaciado = 1.9f;
         int id = 1;
 
-        for (int i = 0; i < nodosPorCarril; i++) // columnas
+        for (int i = 0; i < nodosPorCarril; i++)
         {
-            for (int carril = 0; carril < cantidadCarriles; carril++) // filas
+            for (int carril = 0; carril < cantidadCarriles; carril++)
             {
                 float y = posicionesY[carril];
                 grafo.AgregarVertice(id);
                 posicionesNodos[id] = new Vector2(xInicial + (i * espaciado), y);
 
-                // Conexión horizontal (entre nodos del mismo carril)
                 if (i > 0)
                 {
                     grafo.AgregarArista(id - cantidadCarriles, id, 1);
                     grafo.AgregarArista(id, id - cantidadCarriles, 1);
                 }
 
-                // Conexión vertical entre carriles (misma columna)
                 if (carril > 0)
                 {
                     grafo.AgregarArista(id, id - 1, 1);
@@ -140,19 +137,16 @@ public class Spawner : MonoBehaviour
         }
     }
 
-
     void OnDrawGizmos()
     {
         if (posicionesNodos == null || grafo == null) return;
 
-        // Dibujar nodos
         Gizmos.color = Color.gray;
         foreach (var par in posicionesNodos)
         {
             Gizmos.DrawSphere(par.Value, 0.1f);
         }
 
-        // Dibujar aristas (verde = horizontal, cyan = vertical)
         foreach (var origen in posicionesNodos.Keys)
         {
             foreach (var destino in posicionesNodos.Keys)
@@ -167,7 +161,6 @@ public class Spawner : MonoBehaviour
             }
         }
 
-        // Dibujar nodos bloqueados (muro)
         Gizmos.color = Color.red;
         foreach (var par in posicionesNodos)
         {
