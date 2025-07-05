@@ -19,7 +19,6 @@ public class Spawner : MonoBehaviour
 
     void Start()
     {
-
         InicializarGrafo();
 
         for (int i = 0; i < 3; i++)
@@ -51,7 +50,7 @@ public class Spawner : MonoBehaviour
             // Buscar primer nodo libre en el carril
             for (int i = 0; i < nodosPorCarril; i++)
             {
-                int nodo = 1 + carril * nodosPorCarril + i;
+                int nodo = 1 + i * cantidadCarriles + carril;
                 Vector2 pos = posicionesNodos[nodo];
 
                 Collider2D[] colisiones = Physics2D.OverlapCircleAll(pos, 0.25f);
@@ -81,7 +80,8 @@ public class Spawner : MonoBehaviour
                 return;
             }
 
-            int nodoFinal = nodoInicio + (nodosPorCarril - (nodoInicio % nodosPorCarril)) - 1;
+            // Cálculo correcto del nodo final al final del carril
+            int nodoFinal = 1 + (nodosPorCarril - 1) * cantidadCarriles + carril;
 
             zombie.transform.position = posicionesNodos[nodoInicio];
 
@@ -101,78 +101,85 @@ public class Spawner : MonoBehaviour
             currentTime = 0f;
         }
     }
-    void OnDrawGizmos()
-    {
-        if (posicionesNodos == null) return;
 
-        Gizmos.color = Color.gray;
-        foreach (var par in posicionesNodos)
-        {
-            Gizmos.DrawSphere(par.Value, 0.1f);
-        }
 
-        // Dibujar nodos bloqueados
-        HashSet<int> bloqueados = new HashSet<int>();
-        foreach (var par in posicionesNodos)
-        {
-            Collider2D[] col = Physics2D.OverlapCircleAll(par.Value, 0.25f);
-            foreach (var c in col)
-            {
-                if (c.CompareTag("muro"))
-                {
-                    bloqueados.Add(par.Key);
-                    break;
-                }
-            }
-        }
-
-        Gizmos.color = Color.red;
-        foreach (var id in bloqueados)
-        {
-            if (posicionesNodos.ContainsKey(id))
-                Gizmos.DrawSphere(posicionesNodos[id], 0.15f);
-        }
-    }
     void InicializarGrafo()
     {
         grafo = new GrafoMA();
         grafo.InicializarGrafo();
         posicionesNodos = new Dictionary<int, Vector2>();
 
-        float[] posicionesY = { -9.85f, -17.15f, -24.31f };
-        int id = 1;
+        float[] posicionesY = { -9.85f, -17.15f, -24.31f }; // Carriles 0,1,2
         float espaciado = 1.9f;
+        int id = 1;
 
-        for (int carril = 0; carril < cantidadCarriles; carril++)
+        for (int i = 0; i < nodosPorCarril; i++) // columnas
         {
-            float y = posicionesY[carril];
-
-            for (int i = 0; i < nodosPorCarril; i++)
+            for (int carril = 0; carril < cantidadCarriles; carril++) // filas
             {
+                float y = posicionesY[carril];
                 grafo.AgregarVertice(id);
                 posicionesNodos[id] = new Vector2(xInicial + (i * espaciado), y);
 
+                // Conexión horizontal (entre nodos del mismo carril)
                 if (i > 0)
                 {
-                    grafo.AgregarArista(id - 1, id, 1);
+                    grafo.AgregarArista(id - cantidadCarriles, id, 1);
+                    grafo.AgregarArista(id, id - cantidadCarriles, 1);
                 }
 
-                // Conectar con carril inferior (vertical)
-                if (carril < cantidadCarriles - 1)
+                // Conexión vertical entre carriles (misma columna)
+                if (carril > 0)
                 {
-                    int nodoActual = id;
-                    int nodoInferior = id + nodosPorCarril;
-                    grafo.AgregarArista(nodoActual, nodoInferior, 1);
-                    grafo.AgregarArista(nodoInferior, nodoActual, 1);
+                    grafo.AgregarArista(id, id - 1, 1);
+                    grafo.AgregarArista(id - 1, id, 1);
                 }
 
                 id++;
             }
         }
     }
+
+
+    void OnDrawGizmos()
+    {
+        if (posicionesNodos == null || grafo == null) return;
+
+        // Dibujar nodos
+        Gizmos.color = Color.gray;
+        foreach (var par in posicionesNodos)
+        {
+            Gizmos.DrawSphere(par.Value, 0.1f);
+        }
+
+        // Dibujar aristas (verde = horizontal, cyan = vertical)
+        foreach (var origen in posicionesNodos.Keys)
+        {
+            foreach (var destino in posicionesNodos.Keys)
+            {
+                if (!grafo.ExisteArista(origen, destino)) continue;
+
+                Vector2 origenPos = posicionesNodos[origen];
+                Vector2 destinoPos = posicionesNodos[destino];
+
+                Gizmos.color = Mathf.Approximately(origenPos.y, destinoPos.y) ? Color.green : Color.cyan;
+                Gizmos.DrawLine(origenPos, destinoPos);
+            }
+        }
+
+        // Dibujar nodos bloqueados (muro)
+        Gizmos.color = Color.red;
+        foreach (var par in posicionesNodos)
+        {
+            Collider2D[] col = Physics2D.OverlapCircleAll(par.Value, 0.25f);
+            foreach (var c in col)
+            {
+                if (c.GetComponent<Muro>() != null)
+                {
+                    Gizmos.DrawWireSphere(par.Value, 0.25f);
+                    break;
+                }
+            }
+        }
+    }
 }
-
-
-
-
-

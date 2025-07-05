@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+Ôªøusing System.Collections.Generic;
 using UnityEngine;
 
 public class ZombieInteligente : MonoBehaviour
@@ -23,34 +23,18 @@ public class ZombieInteligente : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (ruta == null || indiceActual >= ruta.Count)
-            return;
-
-        int nodoActual = ruta[indiceActual];
-        Vector2 destino = posiciones[nodoActual];
-
-        // Si est· esperando una nueva ruta, seguir intentando
         if (esperandoRuta)
         {
             RecalcularRutaEsquivando();
             return;
         }
 
-        // Detectar muro en el siguiente nodo
-        Collider2D[] colisiones = Physics2D.OverlapCircleAll(destino, 0.25f);
+        if (ruta == null || indiceActual >= ruta.Count)
+            return;
 
-        foreach (Collider2D col in colisiones)
-        {
-            Debug.Log($"Detectado tag: {col.tag} en nodo {ruta[indiceActual]}");
-            if (col.CompareTag("muro"))
-            {
-                Debug.Log("Zombie inteligente detectÛ un muro. Intentando esquivar...");
-                RecalcularRutaEsquivando();
-                return;
-            }
-        }
+        int nodoActual = ruta[indiceActual];
+        Vector2 destino = posiciones[nodoActual];
 
-        // Movimiento normal
         Vector2 direccion = (destino - rb2D.position).normalized;
         rb2D.MovePosition(rb2D.position + direccion * velocidad * Time.fixedDeltaTime);
 
@@ -64,19 +48,27 @@ public class ZombieInteligente : MonoBehaviour
         }
     }
 
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.collider.CompareTag("muro"))
+        {
+            Debug.Log("Colision√© f√≠sicamente con un muro. Activando rec√°lculo de ruta.");
+            esperandoRuta = true;
+        }
+    }
+
     private void RecalcularRutaEsquivando()
     {
-        Debug.Log("EntrÛ a RecalcularRutaEsquivando()");
+        Debug.Log("Entr√≥ a RecalcularRutaEsquivando()");
 
         HashSet<int> nodosBloqueados = new HashSet<int>();
         foreach (var par in posiciones)
         {
-            Collider2D[] colisiones = Physics2D.OverlapCircleAll(par.Value, 0.25f);
+            Collider2D[] colisiones = Physics2D.OverlapCircleAll(par.Value, 0.7f);
             foreach (var col in colisiones)
             {
-                if (col.CompareTag("muro"))
+                if (col.GetComponent<Muro>() != null)
                 {
-                    Debug.Log($"Nodo bloqueado: {par.Key} en posiciÛn {par.Value}");
                     nodosBloqueados.Add(par.Key);
                     break;
                 }
@@ -88,46 +80,56 @@ public class ZombieInteligente : MonoBehaviour
         int nodosPorCarril = spawner.nodosPorCarril;
         int carriles = spawner.cantidadCarriles;
 
-        for (int c = 0; c < carriles; c++)
+        int nodoActual = ruta[indiceActual];
+        int columnaX = (nodoActual - 1) / carriles;
+
+        int carrilActual = (nodoActual - 1) / nodosPorCarril;
+
+        List<int> ordenCarriles = new List<int>();
+        if (carrilActual < carriles - 1) ordenCarriles.Add(carrilActual + 1); // abajo
+        if (carrilActual > 0) ordenCarriles.Add(carrilActual - 1); // arriba
+
+        foreach (int nuevoCarril in ordenCarriles)
         {
-            Debug.Log($"Probando cambio al carril {c}...");
-            int nuevoInicio = -1;
+            int nuevoInicio = 1 + columnaX * spawner.cantidadCarriles + nuevoCarril;
+            int destino = 1 + (spawner.nodosPorCarril - 1) * spawner.cantidadCarriles + nuevoCarril;
 
-            for (int i = 0; i < nodosPorCarril; i++)
-            {
-                int nodo = 1 + c * nodosPorCarril + i;
-                if (!nodosBloqueados.Contains(nodo))
-                {
-                    nuevoInicio = nodo;
-                    break;
-                }
-            }
-
-            if (nuevoInicio == -1) continue;
-
-            int destino = 1 + c * nodosPorCarril + (nodosPorCarril - 1);
-            if (nodosBloqueados.Contains(destino)) continue;
+            if (nodosBloqueados.Contains(nuevoInicio) || nodosBloqueados.Contains(destino)) continue;
 
             List<int> nuevaRuta = dijkstra.CalcularCamino(nuevoInicio, destino);
 
             if (nuevaRuta.Count > 1)
             {
-                Debug.Log($"Ruta encontrada al carril {c} con {nuevaRuta.Count} nodos.");
-                ruta = nuevaRuta;
-                posiciones = spawner.posicionesNodos;
-                indiceActual = 0;
-                
-                esperandoRuta = false;
-                Debug.Log("Zombie inteligente: cambiÛ de carril.");
-                return;
+                bool rutaValida = true;
+                foreach (int nodo in nuevaRuta)
+                {
+                    if (nodosBloqueados.Contains(nodo))
+                    {
+                        rutaValida = false;
+                        break;
+                    }
+                }
+
+                if (rutaValida)
+                {
+                    Debug.Log($"Ruta v√°lida encontrada: {nuevaRuta[0]} -> {nuevaRuta[^1]}");
+                    ruta = nuevaRuta;
+                    posiciones = spawner.posicionesNodos;
+                    indiceActual = 0;
+                    esperandoRuta = false;
+                    return;
+                }
             }
-            Debug.Log("No se encontrÛ ruta en ning˙n carril.");
-            esperandoRuta = true;
-          
         }
 
-        
+
+
+        esperandoRuta = true;
+        Debug.Log("No se encontr√≥ ruta en el mismo X hacia arriba o abajo.");
     }
+
+
+
 
     public void SetSpawner(Spawner spawnerReference)
     {
@@ -140,7 +142,14 @@ public class ZombieInteligente : MonoBehaviour
         this.posiciones = posiciones;
         indiceActual = 0;
         esperandoRuta = false;
+
+        // Reposicionar al zombie en el primer nodo si es v√°lido
+        if (ruta != null && ruta.Count > 0 && posiciones.ContainsKey(ruta[0]))
+        {
+            transform.position = posiciones[ruta[0]];
+        }
     }
+
 
     private void LlegarATorre()
     {
@@ -149,9 +158,9 @@ public class ZombieInteligente : MonoBehaviour
         spawner.colaDeZombies.Enqueue(gameObject);
     }
 
-    public void TomarDaÒoZ(int daÒo)
+    public void TomarDa√±oZ(int da√±o)
     {
-        vidaZombie -= daÒo;
+        vidaZombie -= da√±o;
         if (vidaZombie <= 0)
             Morir();
     }
@@ -164,5 +173,16 @@ public class ZombieInteligente : MonoBehaviour
         GameManager.Instance.SumarPuntos(50);
         GameManager.Instance.SumarMonedas(100);
     }
-}
 
+    private void OnDrawGizmos()
+    {
+        if (ruta != null && indiceActual < ruta.Count && spawner != null)
+        {
+            int nodoActual = ruta[indiceActual];
+            Vector2 destino = spawner.posicionesNodos[nodoActual];
+
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(destino, 1.0f);
+        }
+    }
+}
