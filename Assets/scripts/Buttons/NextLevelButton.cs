@@ -1,40 +1,73 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro;
+using System.IO;
 
 public class NextLevelButton : MonoBehaviour
 {
+    [Header("UI Selector de Modo")]
+    public GameObject panelModoSelector;
+    public TextMeshProUGUI textoRecordEndless;
+
+    private string pathRecord;
+
+    private void Start()
+    {
+        pathRecord = Application.persistentDataPath + "/record.txt";
+
+        if (textoRecordEndless != null)
+        {
+            if (File.Exists(pathRecord))
+            {
+                string contenido = File.ReadAllText(pathRecord);
+                textoRecordEndless.text = "Récord Endless: " + contenido + " puntos";
+            }
+            else
+            {
+                textoRecordEndless.text = "Récord Endless: 0 puntos";
+            }
+        }
+
+        if (panelModoSelector != null)
+            panelModoSelector.SetActive(false);
+    }
+
+    // BOTONES NORMALES
+
     public void IrAlSiguienteNivel()
     {
-        SceneManager.LoadScene(3); // lvl2 es la escena 4
+        SceneManager.LoadScene(3); // lvl2
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.currentLevel = 2; // Cambiamos el nivel actual en el GameManager
+            GameManager.Instance.currentLevel = 2;
         }
     }
+
     public void Lvl1()
     {
-        SceneManager.LoadScene(1); // nivel 1
-
+        SceneManager.LoadScene(1);
     }
+
     public void VolverAlMenuWin()
     {
-        SceneManager.LoadScene(0); // Menu
-
-        
+        SceneManager.LoadScene(0);
+        if (GameManager.Instance != null)
+        {
             GameManager.Instance.currentLevel = 1;
             GameManager.Instance.puntos = 0;
             GameManager.Instance.vidaTorre = 1000;
-
-        
-    }
-    public void VolverAlMenu()
-    {
-        SceneManager.LoadScene(0); 
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.currentLevel = 1; // Cambiamos el nivel actual en el GameManager
         }
     }
+
+    public void VolverAlMenu()
+    {
+        SceneManager.LoadScene(0);
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.currentLevel = 1;
+        }
+    }
+
     public void Reiniciar()
     {
         if (GameManager.Instance != null)
@@ -47,5 +80,28 @@ public class NextLevelButton : MonoBehaviour
     {
         Application.Quit();
     }
-}
 
+    // NUEVOS BOTONES
+
+    public void MostrarSelectorDeModo()
+    {
+        if (panelModoSelector != null)
+            panelModoSelector.SetActive(true);
+    }
+
+    public void CargarModoNormal()
+    {
+        SceneManager.LoadScene(1); // juego
+    }
+
+    public void CargarModoEndless()
+    {
+        SceneManager.LoadScene("ModoEndless"); // usá el nombre exacto
+    }
+
+    public void CerrarSelectorDeModo()
+    {
+        if (panelModoSelector != null)
+            panelModoSelector.SetActive(false);
+    }
+}

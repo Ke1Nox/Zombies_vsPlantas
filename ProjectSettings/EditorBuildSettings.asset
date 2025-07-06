@@ -9,8 +9,8 @@ EditorBuildSettings:
     path: Assets/Scenes/Menu.unity
     guid: 45dfbf8d4607576488b150d79b4d8302
   - enabled: 1
-    path: Assets/Scenes/juego.unity
-    guid: 2cda990e2423bbf4892e6590ba056729
+    path: Assets/Scenes/lvl1.unity
+    guid: b51a771dae8a0e648a8a4a302936dc65
   - enabled: 1
     path: Assets/Scenes/PasarNivel2.unity
     guid: 1ff291a41dfbe314ab497abc1840d68b
@@ -18,9 +18,13 @@ EditorBuildSettings:
     path: Assets/Scenes/lvl2.unity
     guid: c0e7bd7bc83bc2b45a1acd6ada205a8d
   - enabled: 1
-    path: Assets/Scenes/YouWin.unity
-    guid: 8e90d72969691f04498cfe8283e43a37
-  - enabled: 1
     path: Assets/Scenes/Perdiste.unity
     guid: 5ab2e39bdca161a4cb3d5af50174cab3
+  - enabled: 1
+    path: Assets/Scenes/ModoEndless.unity
+    guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 0
+    path: Assets/Scenes/YouWin.unity
+    guid: 8e90d72969691f04498cfe8283e43a37
   m_configObjects: {}
+  m_UseUCBPForAssetBundles: 0

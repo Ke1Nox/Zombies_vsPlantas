@@ -37,7 +37,8 @@ public class ZombieInteligente : MonoBehaviour
             timerAtaqueTorre += Time.fixedDeltaTime;
             if (timerAtaqueTorre >= tiempoEntreAtaques)
             {
-                torreActual.OnGetDamange?.Invoke(dañoAlTorre);
+                GestorGlobal.DamageTower(dañoAlTorre);
+
                 timerAtaqueTorre = 0f;
             }
             return;
@@ -123,12 +124,10 @@ public class ZombieInteligente : MonoBehaviour
 
         Dijkstra dijkstra = new Dijkstra(spawner.grafo, nodosBloqueados);
 
-        int nodosPorCarril = spawner.nodosPorCarril;
         int carriles = spawner.cantidadCarriles;
-
         int nodoActual = ruta[indiceActual];
         int columnaX = (nodoActual - 1) / carriles;
-        int carrilActual = (nodoActual - 1) % spawner.cantidadCarriles;
+        int carrilActual = (nodoActual - 1) % carriles;
 
         List<int> ordenCarriles = new List<int>();
         if (carrilActual < carriles - 1) ordenCarriles.Add(carrilActual + 1); // abajo
@@ -136,8 +135,8 @@ public class ZombieInteligente : MonoBehaviour
 
         foreach (int nuevoCarril in ordenCarriles)
         {
-            int nuevoInicio = 1 + columnaX * spawner.cantidadCarriles + nuevoCarril;
-            int destino = 1 + (spawner.nodosPorCarril - 1) * spawner.cantidadCarriles + nuevoCarril;
+            int nuevoInicio = 1 + columnaX * carriles + nuevoCarril;
+            int destino = 1 + (spawner.nodosPorCarril - 1) * carriles + nuevoCarril;
 
             if (nodosBloqueados.Contains(nuevoInicio) || nodosBloqueados.Contains(destino)) continue;
 
@@ -190,7 +189,7 @@ public class ZombieInteligente : MonoBehaviour
 
     private void LlegarATorre()
     {
-        GameManager.Instance.DamageTower(vidaZombie);
+        GestorGlobal.DamageTower(vidaZombie);
         ReiniciarZombie();
     }
 
@@ -198,8 +197,9 @@ public class ZombieInteligente : MonoBehaviour
     {
         ReiniciarZombie();
         vidaZombie = 100;
-        GameManager.Instance.SumarPuntos(50);
-        GameManager.Instance.SumarMonedas(100);
+        GestorGlobal.SumarPuntos(50);
+        GestorGlobal.SumarMonedas(100);
+        GestorGlobal.EnemigoDerrotado();
     }
 
     public void TomarDañoZ(int daño)
@@ -230,4 +230,3 @@ public class ZombieInteligente : MonoBehaviour
         }
     }
 }
-

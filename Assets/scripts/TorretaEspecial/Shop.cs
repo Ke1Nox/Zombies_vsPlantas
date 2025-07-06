@@ -11,43 +11,43 @@ public class Shop : MonoBehaviour
 
     void Update()
     {
+        // Colocar torre con T
         if (Input.GetKeyDown(KeyCode.T))
         {
-            if (GameManager.Instance.GastarMonedas(50))
+            if (GestorGlobal.GastarMonedas(50))
             {
                 Instantiate(prefabTorreEspecial, transform.position, Quaternion.identity);
-                Debug.Log("Spawnéo torre");
+                Debug.Log("Torre especial colocada.");
             }
             else
             {
-                Debug.Log("No hay suficientes monedas");
+                Debug.LogWarning("No tenés suficientes monedas para la torreta.");
             }
         }
 
+        // Colocar muro con Y
         if (Input.GetKeyDown(KeyCode.Y))
         {
-            if (GameManager.Instance.GastarMonedas(50))
+            if (GestorGlobal.GastarMonedas(50))
             {
                 int nodoDisponible = BuscarNodoParaMuro();
                 if (nodoDisponible != -1)
                 {
                     Vector2 pos = spawner.posicionesNodos[nodoDisponible];
-
                     GameObject muro = Instantiate(prefabMuro, pos, Quaternion.identity);
                     muro.tag = "muro";
-
+                    Debug.Log("Muro colocado en nodo " + nodoDisponible);
                 }
                 else
                 {
-                    Debug.Log("No se encontró ningún nodo disponible para el muro");
+                    Debug.LogWarning("No se encontró nodo válido para colocar un muro.");
                 }
             }
             else
             {
-                Debug.Log("No hay suficientes monedas");
+                Debug.LogWarning("No tenés suficientes monedas para el muro.");
             }
         }
-
     }
 
     int BuscarNodoParaMuro()
@@ -57,22 +57,19 @@ public class Shop : MonoBehaviour
         int columnaInicial = 30;
         int rangoColumnas = 10;
 
-        // Obtener todos los muros existentes
         GameObject[] muros = GameObject.FindGameObjectsWithTag("muro");
 
         if (muros.Length >= 2)
         {
-            Debug.Log("Ya hay 2 muros colocados");
+            Debug.LogWarning("Ya hay 2 muros colocados.");
             return -1;
         }
 
-        // Obtener carriles ocupados por los muros existentes
         HashSet<int> carrilesOcupados = new HashSet<int>();
         foreach (GameObject muro in muros)
         {
             Vector2 pos = muro.transform.position;
 
-            // Buscar en qué carril está
             for (int carril = 0; carril < cantidadCarriles; carril++)
             {
                 for (int offset = 0; offset <= rangoColumnas; offset++)
@@ -93,7 +90,6 @@ public class Shop : MonoBehaviour
             }
         }
 
-        // Buscar un carril libre
         for (int carril = 0; carril < cantidadCarriles; carril++)
         {
             if (carrilesOcupados.Contains(carril)) continue;
@@ -116,7 +112,6 @@ public class Shop : MonoBehaviour
         return -1;
     }
 
-
     bool EstaOcupado(Vector2 pos)
     {
         Collider2D[] colliders = Physics2D.OverlapCircleAll(pos, 0.25f);
@@ -128,3 +123,4 @@ public class Shop : MonoBehaviour
         return false;
     }
 }
+

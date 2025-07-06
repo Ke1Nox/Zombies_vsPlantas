@@ -6,10 +6,11 @@ public class zombie : MonoBehaviour
     [SerializeField] int maximoVidaZ = 100;
     [SerializeField] private float TiempoEntreDaño = 2f;
     [SerializeField] private float vel = 5f;
-    private bool atacandoTorre = false;
 
+    private bool atacandoTorre = false;
     private int vidaZombie;
     public int Vida => vidaZombie;
+
     private float TiempoSigienteDaño = 0f;
     private GameObject muroAnterior;
 
@@ -22,11 +23,9 @@ public class zombie : MonoBehaviour
 
     private TorreScript torreActual;
     private float timerAtaqueTorre = 0f;
-    [SerializeField] private float tiempoEntreAtaques = 0.2f;
+
+    [SerializeField] private float tiempoEntreAtaques = 1.0f;
     [SerializeField] private int dañoAlTorre = 10;
-
-
-
 
     void Start()
     {
@@ -40,13 +39,12 @@ public class zombie : MonoBehaviour
         if (atacandoTorre && torreActual != null)
         {
             timerAtaqueTorre += Time.fixedDeltaTime;
-
             if (timerAtaqueTorre >= tiempoEntreAtaques)
             {
-                torreActual.OnGetDamange?.Invoke(dañoAlTorre);
+                GestorGlobal.DamageTower(dañoAlTorre);
+
                 timerAtaqueTorre = 0f;
             }
-
             return;
         }
 
@@ -70,7 +68,6 @@ public class zombie : MonoBehaviour
 
         if (muroDetectado != null)
         {
-            // Atacar muro si es nuevo
             if (muroDetectado != muroAnterior)
             {
                 TiempoSigienteDaño = 0f;
@@ -107,15 +104,17 @@ public class zombie : MonoBehaviour
             }
         }
     }
+
     public void SetRutaManual(List<int> ruta, Dictionary<int, Vector2> posiciones)
     {
         this.ruta = ruta;
         this.posiciones = posiciones;
         indiceActual = 0;
     }
+
     private void LlegarATorre()
     {
-        GameManager.Instance.DamageTower(vidaZombie);
+        GestorGlobal.DamageTower(vidaZombie);
         ReiniciarZombie();
     }
 
@@ -127,9 +126,10 @@ public class zombie : MonoBehaviour
 
     private void ZombieMuere()
     {
-        GameManager.Instance.SumarPuntos(50);
-        GameManager.Instance.SumarMonedas(100);
+        GestorGlobal.SumarPuntos(50);
+        GestorGlobal.SumarMonedas(100);
         ReiniciarZombie();
+        GestorGlobal.EnemigoDerrotado();
     }
 
     private void ReiniciarZombie()
@@ -181,8 +181,8 @@ public class zombie : MonoBehaviour
             }
         }
     }
-
 }
+
 
 
 

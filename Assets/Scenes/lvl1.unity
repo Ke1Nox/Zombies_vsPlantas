@@ -1287,7 +1287,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   vida: 1000
-  "tiempoEntreDa\xF1os": 1
 --- !u!1 &811811637
 GameObject:
   m_ObjectHideFlags: 0
@@ -1633,7 +1632,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 3.8648682, y: -14.040039}
+  m_AnchoredPosition: {x: 3.8649292, y: -14.040039}
   m_SizeDelta: {x: 321.08, y: 186.61}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &965018359
@@ -2122,7 +2121,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1266814335}
-  - component: {fileID: 1266814334}
+  - component: {fileID: 1266814336}
   m_Layer: 0
   m_Name: Mananger
   m_TagString: Untagged
@@ -2130,25 +2129,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1266814334
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1266814333}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b797bf3c991d41a49ae8756023467958, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  vidaTorre: 1000
-  puntos: 0
-  monedas: 0
-  textoMonedas: {fileID: 707938277}
-  currentLevel: 1
-  torreScript: {fileID: 763285873}
-  turret: {fileID: 889187571}
 --- !u!4 &1266814335
 Transform:
   m_ObjectHideFlags: 0
@@ -2164,6 +2144,25 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1266814336
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1266814333}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55ab091633f87b849a08fd35baa3cc01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  puntuacionActual: 0
+  enemigosPorOleadaInicial: 2
+  tiempoEntreOleadas: 3
+  monedas: 0
+  textoMonedas: {fileID: 0}
+  vidaTorre: 1000
+  torreScript: {fileID: 0}
 --- !u!1 &1313833851
 GameObject:
   m_ObjectHideFlags: 0
@@ -2245,8 +2244,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1002, y: -65.5}
-  m_SizeDelta: {x: 140.8182, y: 77}
+  m_AnchoredPosition: {x: 1039, y: -105}
+  m_SizeDelta: {x: 307.218, y: 101.1816}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1676162297
 MonoBehaviour:
@@ -2268,7 +2267,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: lvl1
+  m_text: 'Endless '
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2302,8 +2301,8 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -2376,9 +2375,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38b2d565f6af5814e924b6d4b2781bf3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  zombieComun: {fileID: 30142194095720047, guid: a70cd427e84bbca41a441f75a9636200, type: 3}
-  zombieInteligente: {fileID: 5363003618223355719, guid: 935bffc4a32974248ac23fc9d30a85a1, type: 3}
+  zombieComun: {fileID: 30142194095720047, guid: 275ac24c66b854547ae865fa81170566, type: 3}
+  zombieInteligente: {fileID: 5363003618223355719, guid: c3702ee98c9b74743bde309569b87916, type: 3}
   tiempoSpawn: 2
+  modoInfinito: 0
   cantidadCarriles: 3
   nodosPorCarril: 48
   xInicial: -50

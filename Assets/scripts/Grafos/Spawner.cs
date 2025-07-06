@@ -6,6 +6,8 @@ public class Spawner : MonoBehaviour
     [SerializeField] GameObject zombieComun;
     [SerializeField] GameObject zombieInteligente;
     [SerializeField] float tiempoSpawn = 2f;
+    [SerializeField] private bool modoInfinito = false;
+
     private float currentTime;
 
     public MyQueue<GameObject> colaDeZombies = new MyQueue<GameObject>();
@@ -20,89 +22,136 @@ public class Spawner : MonoBehaviour
     void Start()
     {
         InicializarGrafo();
-
-        for (int i = 0; i < 3; i++)
-        {
-            GameObject z1 = Instantiate(zombieComun);
-            z1.GetComponent<zombie>().SetSpawner(this);
-            colaDeZombies.Enqueue(z1);
-            z1.SetActive(false);
-
-            GameObject z2 = Instantiate(zombieInteligente);
-            z2.GetComponent<ZombieInteligente>()?.SetSpawner(this);
-            colaDeZombies.Enqueue(z2);
-            z2.SetActive(false);
-        }
+        CrearZombies(20); // zombies iniciales
     }
 
     void Update()
     {
+        if (modoInfinito) return;
+
         currentTime += Time.deltaTime;
 
         if (currentTime >= tiempoSpawn && colaDeZombies.Count() > 0)
         {
-            GameObject zombie = colaDeZombies.Dequeue();
+            SpawnZombieRandom();
+        }
+    }
 
-            int carril = Random.Range(0, cantidadCarriles);
-            int nodoInicio = -1;
+    public void SpawnearZombies(int cantidad)
+    {
+        if (posicionesNodos == null || posicionesNodos.Count == 0)
+        {
+            Debug.LogWarning("posicionesNodos está vacío. Reintentando InicializarGrafo().");
+            InicializarGrafo();
+        }
 
-            for (int i = 0; i < nodosPorCarril; i++)
+        Debug.Log($"Oleada requiere: {cantidad} zombies. Zombies disponibles: {colaDeZombies.Count()}");
+
+        if (colaDeZombies.Count() < cantidad)
+        {
+            int faltan = cantidad - colaDeZombies.Count();
+            CrearZombies(Mathf.CeilToInt(faltan / 2f));
+        }
+
+        for (int i = 0; i < cantidad; i++)
+        {
+            if (colaDeZombies.Count() > 0)
+                SpawnZombieRandom();
+        }
+    }
+
+    private void CrearZombies(int cantidad)
+    {
+        for (int i = 0; i < cantidad; i++)
+        {
+            GameObject z1 = Instantiate(zombieComun);
+            z1.GetComponent<zombie>().SetSpawner(this);
+            z1.SetActive(false);
+            colaDeZombies.Enqueue(z1);
+
+            GameObject z2 = Instantiate(zombieInteligente);
+            z2.GetComponent<ZombieInteligente>()?.SetSpawner(this);
+            z2.SetActive(false);
+            colaDeZombies.Enqueue(z2);
+        }
+    }
+
+    private void SpawnZombieRandom()
+    {
+        GameObject zombie = colaDeZombies.Dequeue();
+
+        int carril = Random.Range(0, cantidadCarriles);
+        int nodoInicio = -1;
+
+        for (int i = 0; i < nodosPorCarril; i++)
+        {
+            int nodo = 1 + i * cantidadCarriles + carril;
+
+            if (posicionesNodos == null || !posicionesNodos.ContainsKey(nodo))
             {
-                int nodo = 1 + i * cantidadCarriles + carril;
-                Vector2 pos = posicionesNodos[nodo];
+                Debug.LogWarning("Nodo inválido o posicionesNodos no inicializado.");
+                continue;
+            }
 
-                Collider2D[] colisiones = Physics2D.OverlapCircleAll(pos, 0.25f);
-                bool ocupado = false;
+            Vector2 pos = posicionesNodos[nodo];
 
-                foreach (var c in colisiones)
+            Collider2D[] colisiones = Physics2D.OverlapCircleAll(pos, 0.25f);
+            bool ocupado = false;
+
+            foreach (var c in colisiones)
+            {
+                if (c.CompareTag("muro") || c.CompareTag("torre"))
                 {
-                    if (c.CompareTag("muro") || c.CompareTag("torre"))
-                    {
-                        ocupado = true;
-                        break;
-                    }
-                }
-
-                if (!ocupado)
-                {
-                    nodoInicio = nodo;
+                    ocupado = true;
                     break;
                 }
             }
 
-            if (nodoInicio == -1)
+            if (!ocupado)
             {
-                Debug.LogWarning($"No hay nodo libre en carril {carril}, no se spawnea zombie.");
-                zombie.SetActive(false);
-                colaDeZombies.Enqueue(zombie);
-                return;
+                nodoInicio = nodo;
+                break;
             }
-
-            int nodoFinal = 1 + (nodosPorCarril - 1) * cantidadCarriles + carril;
-
-            zombie.transform.position = posicionesNodos[nodoInicio];
-            zombie.transform.rotation = Quaternion.identity;
-            zombie.SetActive(true); // ⚠️ Activar después de posicionarlo
-
-            // ✅ Asignar ruta nueva siempre que sale de la cola
-            if (zombie.TryGetComponent<zombie>(out var zombieComun))
-            {
-                Dijkstra dijkstra = new Dijkstra(grafo);
-                List<int> ruta = dijkstra.CalcularCamino(nodoInicio, nodoFinal);
-                zombieComun.SetRutaManual(ruta, posicionesNodos);
-            }
-            else if (zombie.TryGetComponent<ZombieInteligente>(out var zombieInteligente))
-            {
-                Dijkstra dijkstra = new Dijkstra(grafo);
-                List<int> ruta = dijkstra.CalcularCamino(nodoInicio, nodoFinal);
-                zombieInteligente.SetRutaManual(ruta, posicionesNodos);
-            }
-
-            currentTime = 0f;
         }
+
+        if (nodoInicio == -1)
+        {
+            Debug.LogWarning($"No hay nodo libre en carril {carril}, no se spawnea zombie.");
+            zombie.SetActive(false);
+            colaDeZombies.Enqueue(zombie);
+            return;
+        }
+
+        if (!posicionesNodos.ContainsKey(nodoInicio))
+        {
+            Debug.LogError("posicionesNodos no contiene nodoInicio válido: " + nodoInicio);
+            return;
+        }
+
+        int nodoFinal = 1 + (nodosPorCarril - 1) * cantidadCarriles + carril;
+
+        zombie.transform.position = posicionesNodos[nodoInicio];
+        zombie.transform.rotation = Quaternion.identity;
+        zombie.SetActive(true);
+
+        if (zombie.TryGetComponent<zombie>(out var zombieComun))
+        {
+            Dijkstra dijkstra = new Dijkstra(grafo);
+            List<int> ruta = dijkstra.CalcularCamino(nodoInicio, nodoFinal);
+            zombieComun.SetRutaManual(ruta, posicionesNodos);
+        }
+        else if (zombie.TryGetComponent<ZombieInteligente>(out var zombieInteligente))
+        {
+            Dijkstra dijkstra = new Dijkstra(grafo);
+            List<int> ruta = dijkstra.CalcularCamino(nodoInicio, nodoFinal);
+            zombieInteligente.SetRutaManual(ruta, posicionesNodos);
+        }
+
+        Debug.Log($"Zombie spawneado en nodo {nodoInicio}. Restan en cola: {colaDeZombies.Count()}");
+        currentTime = 0f;
     }
 
-    void InicializarGrafo()
+    public void InicializarGrafo()
     {
         grafo = new GrafoMA();
         grafo.InicializarGrafo();
@@ -135,6 +184,8 @@ public class Spawner : MonoBehaviour
                 id++;
             }
         }
+
+        Debug.Log("Grafo inicializado con " + posicionesNodos.Count + " posiciones.");
     }
 
     void OnDrawGizmos()
@@ -176,3 +227,5 @@ public class Spawner : MonoBehaviour
         }
     }
 }
+
+
