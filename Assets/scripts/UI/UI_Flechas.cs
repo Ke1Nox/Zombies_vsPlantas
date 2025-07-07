@@ -18,7 +18,7 @@ public class UI_Flechas : MonoBehaviour
   
     void Update()
     {
-        NumFlechas = 2 -BalaPool.activeBalas;
+        NumFlechas = 5 -BalaPool.activeBalas;
         textMesh.text = NumFlechas.ToString("0");
     }
 }

@@ -1,8 +1,10 @@
 using UnityEngine;
+using System.Collections;
 
 public class BalaPJ : MonoBehaviour
 {
-    [SerializeField] private float speed = -30f;
+    [SerializeField] private float speed = 100f;
+    private float initialSpeed;
     private float lifeTime = 2f;
     private float currentTime;
 
@@ -16,6 +18,7 @@ public class BalaPJ : MonoBehaviour
     void OnEnable()
     {
         currentTime = 0f;
+        speed = initialSpeed = 100f; // Reiniciar velocidad
     }
 
     void Update()
@@ -33,7 +36,7 @@ public class BalaPJ : MonoBehaviour
     {
         if (collision.CompareTag("zombie"))
         {
-            // Intenta dañar un zombie común
+            // Daño a zombie común
             var zombieComun = collision.GetComponent<zombie>();
             if (zombieComun != null)
             {
@@ -41,7 +44,7 @@ public class BalaPJ : MonoBehaviour
             }
             else
             {
-                // Si no es común, probá si es inteligente
+                // Daño a zombie inteligente
                 var zombieInteligente = collision.GetComponent<ZombieInteligente>();
                 if (zombieInteligente != null)
                 {
@@ -49,8 +52,14 @@ public class BalaPJ : MonoBehaviour
                 }
             }
 
-            pool.DevolverBala(this);
+            StartCoroutine(EsperarYDevolver());
         }
     }
-}
 
+    private IEnumerator EsperarYDevolver()
+    {
+        speed = 0f; // Opcional: frena la bala tras impacto
+        yield return new WaitForSeconds(1f);
+        pool.DevolverBala(this);
+    }
+}

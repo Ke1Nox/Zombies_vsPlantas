@@ -15,7 +15,8 @@ public class BalaPool : MonoBehaviour
 
     void Start()
     {
-        // Inicializa el pool con balas desactivadas
+        activeBalas = 0; // Reinicia el contador al cargar la escena
+
         for (int i = 0; i < cantidadInicial; i++)
         {
             BalaPJ bala = Instantiate(balaPrefab, transform);
