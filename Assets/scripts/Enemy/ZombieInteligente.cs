@@ -38,7 +38,6 @@ public class ZombieInteligente : MonoBehaviour
             if (timerAtaqueTorre >= tiempoEntreAtaques)
             {
                 GestorGlobal.DamageTower(dañoAlTorre);
-
                 timerAtaqueTorre = 0f;
             }
             return;
@@ -60,10 +59,10 @@ public class ZombieInteligente : MonoBehaviour
         int nodoActual = ruta[indiceActual];
         Vector2 destino = posiciones[nodoActual];
 
-        Vector2 direccion = (destino - rb2D.position).normalized;
-        rb2D.MovePosition(rb2D.position + direccion * velocidad * Time.fixedDeltaTime);
+        Vector2 nuevaPos = Vector2.MoveTowards(rb2D.position, destino, velocidad * Time.fixedDeltaTime);
+        rb2D.MovePosition(nuevaPos);
 
-        if (Vector2.Distance(transform.position, destino) < 0.1f)
+        if (nuevaPos == destino)
         {
             indiceActual++;
             if (indiceActual >= ruta.Count)
@@ -99,15 +98,12 @@ public class ZombieInteligente : MonoBehaviour
     {
         if (collision.CompareTag("muro"))
         {
-            Debug.Log("Entré en un muro. Recalculando ruta.");
             esperandoRuta = true;
         }
     }
 
     private void RecalcularRutaEsquivando()
     {
-        Debug.Log("Entró a RecalcularRutaEsquivando()");
-
         HashSet<int> nodosBloqueados = new HashSet<int>();
         foreach (var par in posiciones)
         {
@@ -130,8 +126,8 @@ public class ZombieInteligente : MonoBehaviour
         int carrilActual = (nodoActual - 1) % carriles;
 
         List<int> ordenCarriles = new List<int>();
-        if (carrilActual < carriles - 1) ordenCarriles.Add(carrilActual + 1); // abajo
-        if (carrilActual > 0) ordenCarriles.Add(carrilActual - 1); // arriba
+        if (carrilActual < carriles - 1) ordenCarriles.Add(carrilActual + 1);
+        if (carrilActual > 0) ordenCarriles.Add(carrilActual - 1);
 
         foreach (int nuevoCarril in ordenCarriles)
         {
@@ -142,37 +138,18 @@ public class ZombieInteligente : MonoBehaviour
 
             List<int> nuevaRuta = dijkstra.CalcularCamino(nuevoInicio, destino);
 
-            if (nuevaRuta.Count > 1)
+            if (nuevaRuta.Count > 1 && nuevaRuta.TrueForAll(n => !nodosBloqueados.Contains(n)))
             {
-                bool rutaValida = true;
-                foreach (int nodo in nuevaRuta)
-                {
-                    if (nodosBloqueados.Contains(nodo))
-                    {
-                        rutaValida = false;
-                        break;
-                    }
-                }
-
-                if (rutaValida)
-                {
-                    Debug.Log($"Ruta válida encontrada: {nuevaRuta[0]} -> {nuevaRuta[^1]}");
-                    ruta = nuevaRuta;
-                    posiciones = spawner.posicionesNodos;
-                    indiceActual = 0;
-                    esperandoRuta = false;
-                    return;
-                }
+                ruta = nuevaRuta;
+                posiciones = spawner.posicionesNodos;
+                indiceActual = 0;
+                esperandoRuta = false;
+                return;
             }
         }
-
-        Debug.Log("No se encontró ruta en el mismo X hacia arriba o abajo.");
     }
 
-    public void SetSpawner(Spawner spawnerReference)
-    {
-        spawner = spawnerReference;
-    }
+    public void SetSpawner(Spawner spawnerReference) => spawner = spawnerReference;
 
     public void SetRutaManual(List<int> ruta, Dictionary<int, Vector2> posiciones)
     {
@@ -185,6 +162,10 @@ public class ZombieInteligente : MonoBehaviour
         {
             transform.position = posiciones[ruta[0]];
         }
+    }
+    public void SetVelocidadBase(float nuevaVelocidad)
+    {
+        velocidad = nuevaVelocidad;
     }
 
     private void LlegarATorre()
@@ -205,8 +186,7 @@ public class ZombieInteligente : MonoBehaviour
     public void TomarDañoZ(int daño)
     {
         vidaZombie -= daño;
-        if (vidaZombie <= 0)
-            Morir();
+        if (vidaZombie <= 0) Morir();
     }
 
     private void ReiniciarZombie()
@@ -216,6 +196,11 @@ public class ZombieInteligente : MonoBehaviour
         timerAtaqueTorre = 0f;
         gameObject.SetActive(false);
         spawner.colaDeZombies.Enqueue(gameObject);
+    }
+
+    public void AumentarVelocidad(float extra)
+    {
+        velocidad += extra;
     }
 
     private void OnDrawGizmos()
@@ -230,3 +215,4 @@ public class ZombieInteligente : MonoBehaviour
         }
     }
 }
+

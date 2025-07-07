@@ -4,7 +4,7 @@ using System.Collections;
 public class BalaPJ : MonoBehaviour
 {
     [SerializeField] private float speed = 100f;
-    private float initialSpeed;
+
     private float lifeTime = 2f;
     private float currentTime;
 
@@ -18,19 +18,23 @@ public class BalaPJ : MonoBehaviour
     void OnEnable()
     {
         currentTime = 0f;
-        speed = initialSpeed = 100f; // Reiniciar velocidad
+        speed = 100f; // <-- Volver a establecer la velocidad
     }
+
 
     void Update()
     {
         currentTime += Time.deltaTime;
-        transform.Translate(speed * Time.deltaTime, 0, 0);
+
+        if (speed > 0f)
+            transform.Translate(speed * Time.deltaTime, 0, 0);
 
         if (currentTime >= lifeTime)
         {
             pool.DevolverBala(this);
         }
     }
+
 
     private void OnTriggerEnter2D(Collider2D collision)
     {

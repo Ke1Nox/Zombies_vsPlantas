@@ -130,7 +130,8 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Adobe_Express_-_file_8_0: -323587210112958256
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

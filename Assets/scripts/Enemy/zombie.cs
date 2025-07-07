@@ -42,7 +42,6 @@ public class zombie : MonoBehaviour
             if (timerAtaqueTorre >= tiempoEntreAtaques)
             {
                 GestorGlobal.DamageTower(dañoAlTorre);
-
                 timerAtaqueTorre = 0f;
             }
             return;
@@ -53,7 +52,6 @@ public class zombie : MonoBehaviour
         int nodoActual = ruta[indiceActual];
         Vector2 destino = posiciones[nodoActual];
 
-        // Detectar muro en destino
         Collider2D[] colisiones = Physics2D.OverlapCircleAll(destino, 0.25f);
         GameObject muroDetectado = null;
 
@@ -91,11 +89,10 @@ public class zombie : MonoBehaviour
             return;
         }
 
-        // Movimiento normal
-        Vector2 direccion = (destino - rb2D.position).normalized;
-        rb2D.MovePosition(rb2D.position + direccion * vel * Time.fixedDeltaTime);
+        Vector2 nuevaPos = Vector2.MoveTowards(rb2D.position, destino, vel * Time.fixedDeltaTime);
+        rb2D.MovePosition(nuevaPos);
 
-        if (Vector2.Distance(rb2D.position, destino) < 0.1f)
+        if (nuevaPos == destino)
         {
             indiceActual++;
             if (indiceActual >= ruta.Count)
@@ -122,6 +119,11 @@ public class zombie : MonoBehaviour
     {
         vidaZombie -= daño;
         if (vidaZombie <= 0) ZombieMuere();
+    }
+
+    public void SetVelocidadBase(float nuevaVelocidad)
+    {
+        vel = nuevaVelocidad;
     }
 
     private void ZombieMuere()
@@ -181,7 +183,13 @@ public class zombie : MonoBehaviour
             }
         }
     }
+
+    public void AumentarVelocidad(float extra)
+    {
+        vel += extra;
+    }
 }
+
 
 
 

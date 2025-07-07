@@ -17,6 +17,7 @@ public class GameManagerEndless : MonoBehaviour
     public int monedas = 0;
     public TextMeshProUGUI textoMonedas;
 
+    public int EnemigosVivos => enemigosVivos;
 
     private int enemigosVivos = 0;
     private bool esperandoSiguienteOleada = false;

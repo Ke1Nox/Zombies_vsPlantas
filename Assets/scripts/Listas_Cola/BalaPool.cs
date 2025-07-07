@@ -72,7 +72,6 @@ public class BalaPool : MonoBehaviour
        
     }
 
-
     public bool HayBalasDisponibles()
     {
         return !pool.IsEmpty;

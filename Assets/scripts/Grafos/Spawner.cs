@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Spawner : MonoBehaviour
@@ -9,6 +10,11 @@ public class Spawner : MonoBehaviour
     [SerializeField] private bool modoInfinito = false;
 
     private float currentTime;
+
+    private int zombiesSpawneadosEstaOleada = 0;
+    private float intervaloSpawn = 1.5f;
+    private float tiempoProximoSpawn = 0f;
+    private int zombiesPorOleada = 5;
 
     public MyQueue<GameObject> colaDeZombies = new MyQueue<GameObject>();
 
@@ -27,25 +33,38 @@ public class Spawner : MonoBehaviour
 
     void Update()
     {
-        if (modoInfinito) return;
-
-        currentTime += Time.deltaTime;
-
-        if (currentTime >= tiempoSpawn && colaDeZombies.Count() > 0)
+        if (modoInfinito)
         {
-            SpawnZombieRandom();
+            currentTime += Time.deltaTime;
+
+            int oleada = GameManagerEndless.Instance?.NumeroOleada ?? 1;
+            zombiesPorOleada = GameManagerEndless.Instance?.EnemigosVivos ?? (5 + oleada * 2);
+
+            if (zombiesSpawneadosEstaOleada < zombiesPorOleada && currentTime >= tiempoProximoSpawn)
+            {
+                if (colaDeZombies.Count() <= 5)
+                    CrearZombies(10);
+
+                SpawnZombieRandom();
+                zombiesSpawneadosEstaOleada++;
+                tiempoProximoSpawn = currentTime + intervaloSpawn;
+            }
+        }
+        else
+        {
+            currentTime += Time.deltaTime;
+
+            if (currentTime >= tiempoSpawn && colaDeZombies.Count() > 0)
+            {
+                SpawnZombieRandom();
+            }
         }
     }
 
     public void SpawnearZombies(int cantidad)
     {
         if (posicionesNodos == null || posicionesNodos.Count == 0)
-        {
-            Debug.LogWarning("posicionesNodos está vacío. Reintentando InicializarGrafo().");
             InicializarGrafo();
-        }
-
-        Debug.Log($"Oleada requiere: {cantidad} zombies. Zombies disponibles: {colaDeZombies.Count()}");
 
         if (colaDeZombies.Count() < cantidad)
         {
@@ -58,21 +77,36 @@ public class Spawner : MonoBehaviour
             if (colaDeZombies.Count() > 0)
                 SpawnZombieRandom();
         }
+
+        zombiesSpawneadosEstaOleada = 0;
+    }
+    private float ObtenerVelocidadPorOleada(int oleada)
+    {
+        if (oleada < 5) return 5f;           // Tipo 1
+        else if (oleada < 10) return 6.5f;   // Tipo 2
+        else if (oleada < 15) return 8f;     // Tipo 3
+        else if (oleada < 20) return 9.5f;   // Tipo 4
+        else return 11f;                     // Tipo 5
     }
 
     private void CrearZombies(int cantidad)
     {
+        int oleada = GameManagerEndless.Instance?.NumeroOleada ?? 1;
+        float probabilidadInteligente = Mathf.Clamp01(oleada * 0.05f);
+
         for (int i = 0; i < cantidad; i++)
         {
-            GameObject z1 = Instantiate(zombieComun);
-            z1.GetComponent<zombie>().SetSpawner(this);
-            z1.SetActive(false);
-            colaDeZombies.Enqueue(z1);
+            bool esInteligente = Random.value < probabilidadInteligente;
 
-            GameObject z2 = Instantiate(zombieInteligente);
-            z2.GetComponent<ZombieInteligente>()?.SetSpawner(this);
-            z2.SetActive(false);
-            colaDeZombies.Enqueue(z2);
+            GameObject z = esInteligente ? Instantiate(zombieInteligente) : Instantiate(zombieComun);
+
+            if (z.TryGetComponent<zombie>(out var zc))
+                zc.SetSpawner(this);
+            else if (z.TryGetComponent<ZombieInteligente>(out var zi))
+                zi.SetSpawner(this);
+
+            z.SetActive(false);
+            colaDeZombies.Enqueue(z);
         }
     }
 
@@ -80,76 +114,63 @@ public class Spawner : MonoBehaviour
     {
         GameObject zombie = colaDeZombies.Dequeue();
 
-        int carril = Random.Range(0, cantidadCarriles);
+        List<int> carrilesDisponibles = Enumerable.Range(0, cantidadCarriles).OrderBy(x => Random.value).ToList();
         int nodoInicio = -1;
+        int carrilElegido = -1;
 
-        for (int i = 0; i < nodosPorCarril; i++)
+        foreach (int carril in carrilesDisponibles)
         {
-            int nodo = 1 + i * cantidadCarriles + carril;
-
-            if (posicionesNodos == null || !posicionesNodos.ContainsKey(nodo))
+            for (int i = 0; i < nodosPorCarril; i++)
             {
-                Debug.LogWarning("Nodo inválido o posicionesNodos no inicializado.");
-                continue;
-            }
+                int nodo = 1 + i * cantidadCarriles + carril;
+                if (!posicionesNodos.ContainsKey(nodo)) continue;
 
-            Vector2 pos = posicionesNodos[nodo];
+                Vector2 pos = posicionesNodos[nodo];
+                Collider2D[] colisiones = Physics2D.OverlapCircleAll(pos, 0.25f);
+                bool ocupado = colisiones.Any(c => c.CompareTag("muro") || c.CompareTag("torre"));
 
-            Collider2D[] colisiones = Physics2D.OverlapCircleAll(pos, 0.25f);
-            bool ocupado = false;
-
-            foreach (var c in colisiones)
-            {
-                if (c.CompareTag("muro") || c.CompareTag("torre"))
+                if (!ocupado)
                 {
-                    ocupado = true;
+                    nodoInicio = nodo;
+                    carrilElegido = carril;
                     break;
                 }
             }
-
-            if (!ocupado)
-            {
-                nodoInicio = nodo;
-                break;
-            }
+            if (nodoInicio != -1) break;
         }
 
         if (nodoInicio == -1)
         {
-            Debug.LogWarning($"No hay nodo libre en carril {carril}, no se spawnea zombie.");
             zombie.SetActive(false);
             colaDeZombies.Enqueue(zombie);
             return;
         }
 
-        if (!posicionesNodos.ContainsKey(nodoInicio))
-        {
-            Debug.LogError("posicionesNodos no contiene nodoInicio válido: " + nodoInicio);
-            return;
-        }
-
-        int nodoFinal = 1 + (nodosPorCarril - 1) * cantidadCarriles + carril;
-
+        int nodoFinal = 1 + (nodosPorCarril - 1) * cantidadCarriles + carrilElegido;
         zombie.transform.position = posicionesNodos[nodoInicio];
         zombie.transform.rotation = Quaternion.identity;
         zombie.SetActive(true);
 
+        int oleada = GameManagerEndless.Instance?.NumeroOleada ?? 1;
+        float velocidadFija = ObtenerVelocidadPorOleada(oleada);
+
         if (zombie.TryGetComponent<zombie>(out var zombieComun))
         {
-            Dijkstra dijkstra = new Dijkstra(grafo);
-            List<int> ruta = dijkstra.CalcularCamino(nodoInicio, nodoFinal);
-            zombieComun.SetRutaManual(ruta, posicionesNodos);
+            var dijkstra = new Dijkstra(grafo);
+            zombieComun.SetRutaManual(dijkstra.CalcularCamino(nodoInicio, nodoFinal), posicionesNodos);
+            zombieComun.SetVelocidadBase(velocidadFija);
         }
         else if (zombie.TryGetComponent<ZombieInteligente>(out var zombieInteligente))
         {
-            Dijkstra dijkstra = new Dijkstra(grafo);
-            List<int> ruta = dijkstra.CalcularCamino(nodoInicio, nodoFinal);
-            zombieInteligente.SetRutaManual(ruta, posicionesNodos);
+            var dijkstra = new Dijkstra(grafo);
+            zombieInteligente.SetRutaManual(dijkstra.CalcularCamino(nodoInicio, nodoFinal), posicionesNodos);
+            zombieInteligente.SetVelocidadBase(velocidadFija);
         }
 
-        Debug.Log($"Zombie spawneado en nodo {nodoInicio}. Restan en cola: {colaDeZombies.Count()}");
         currentTime = 0f;
     }
+
+
 
     public void InicializarGrafo()
     {
@@ -184,48 +205,44 @@ public class Spawner : MonoBehaviour
                 id++;
             }
         }
-
-        Debug.Log("Grafo inicializado con " + posicionesNodos.Count + " posiciones.");
     }
 
-    void OnDrawGizmos()
+    private void OnDrawGizmos()
     {
-        if (posicionesNodos == null || grafo == null) return;
+        if (grafo == null || posicionesNodos == null)
+            return;
 
-        Gizmos.color = Color.gray;
-        foreach (var par in posicionesNodos)
-        {
-            Gizmos.DrawSphere(par.Value, 0.1f);
-        }
+        HashSet<int> vertices = grafo.Vertices();
 
-        foreach (var origen in posicionesNodos.Keys)
+        foreach (int origen in vertices)
         {
-            foreach (var destino in posicionesNodos.Keys)
+            foreach (int destino in vertices)
             {
-                if (!grafo.ExisteArista(origen, destino)) continue;
-
-                Vector2 origenPos = posicionesNodos[origen];
-                Vector2 destinoPos = posicionesNodos[destino];
-
-                Gizmos.color = Mathf.Approximately(origenPos.y, destinoPos.y) ? Color.green : Color.cyan;
-                Gizmos.DrawLine(origenPos, destinoPos);
-            }
-        }
-
-        Gizmos.color = Color.red;
-        foreach (var par in posicionesNodos)
-        {
-            Collider2D[] col = Physics2D.OverlapCircleAll(par.Value, 0.25f);
-            foreach (var c in col)
-            {
-                if (c.GetComponent<Muro>() != null)
+                if (grafo.ExisteArista(origen, destino))
                 {
-                    Gizmos.DrawWireSphere(par.Value, 0.25f);
-                    break;
+                    if (!posicionesNodos.ContainsKey(origen) || !posicionesNodos.ContainsKey(destino))
+                        continue;
+
+                    Vector2 posOrigen = posicionesNodos[origen];
+                    Vector2 posDestino = posicionesNodos[destino];
+
+                    // Diferenciar verticales y horizontales por el eje Y
+                    if (Mathf.Approximately(posOrigen.y, posDestino.y))
+                        Gizmos.color = Color.red; // misma fila → horizontal
+                    else
+                        Gizmos.color = Color.green; // distinta fila → vertical
+
+                    Gizmos.DrawLine(posOrigen, posDestino);
                 }
             }
+
+            // Dibujar un punto en el nodo
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawSphere(posicionesNodos[origen], 0.1f);
         }
     }
+
+
 }
 
 
