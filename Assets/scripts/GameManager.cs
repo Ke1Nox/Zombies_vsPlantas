@@ -19,7 +19,7 @@ public class GameManager : MonoBehaviour
 
     public TorreScript torreScript;
     public GameObject turret;
-
+   
     private void Awake()
     {
         if (Instance == null)
@@ -68,10 +68,11 @@ public class GameManager : MonoBehaviour
 
     public void DamageTower(int daño)
     {
+       
         vidaTorre -= daño;
         if (vidaTorre <= 0)
         {
-            SceneManager.LoadScene(5); // Escena Fail (Game Over)
+            SceneManager.LoadScene(4); // Escena Fail (Game Over)
         }
     }
 
@@ -99,7 +100,7 @@ public class GameManager : MonoBehaviour
     void ActualizarUI()
     {
         if (textoMonedas != null)
-            textoMonedas.text = "Monedas: " + monedas;
+            textoMonedas.text = "" + monedas;
     }
 
     public void ReiniciarNivel()

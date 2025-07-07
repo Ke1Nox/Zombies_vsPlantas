@@ -7,6 +7,7 @@ public class zombie : MonoBehaviour
     [SerializeField] private float TiempoEntreDaño = 2f;
     [SerializeField] private float vel = 5f;
 
+    private Animator animator;
     private bool atacandoTorre = false;
     private int vidaZombie;
     public int Vida => vidaZombie;
@@ -32,12 +33,15 @@ public class zombie : MonoBehaviour
         rb2D = GetComponent<Rigidbody2D>();
         vidaZombie = maximoVidaZ;
         spawner = Object.FindFirstObjectByType<Spawner>();
+        animator = GetComponent<Animator>();
+
     }
 
     void FixedUpdate()
     {
         if (atacandoTorre && torreActual != null)
         {
+            animator.SetBool("atacando", true); // está atacando la torre
             timerAtaqueTorre += Time.fixedDeltaTime;
             if (timerAtaqueTorre >= tiempoEntreAtaques)
             {
@@ -66,8 +70,10 @@ public class zombie : MonoBehaviour
 
         if (muroDetectado != null)
         {
+            animator.SetBool("atacando", true);
             if (muroDetectado != muroAnterior)
             {
+               
                 TiempoSigienteDaño = 0f;
                 muroAnterior = muroDetectado;
             }
@@ -83,11 +89,14 @@ public class zombie : MonoBehaviour
             }
             else
             {
+                
                 TiempoSigienteDaño -= Time.deltaTime;
             }
-
+            // SIEMPRE que hay muroDetectado, estamos atacando visualmente
+            animator.SetBool("atacando", true);
             return;
         }
+      
 
         Vector2 nuevaPos = Vector2.MoveTowards(rb2D.position, destino, vel * Time.fixedDeltaTime);
         rb2D.MovePosition(nuevaPos);
@@ -100,6 +109,8 @@ public class zombie : MonoBehaviour
                 LlegarATorre();
             }
         }
+        animator.SetBool("atacando", false);
+
     }
 
     public void SetRutaManual(List<int> ruta, Dictionary<int, Vector2> posiciones)
@@ -136,6 +147,8 @@ public class zombie : MonoBehaviour
 
     private void ReiniciarZombie()
     {
+        animator.SetBool("atacando", false);
+
         atacandoTorre = false;
         vidaZombie = maximoVidaZ;
         ruta = null;

@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 1504392355496989288}
   - component: {fileID: 7713699265607355653}
   - component: {fileID: 5458424012203709079}
+  - component: {fileID: -1104858489207916778}
   m_Layer: 10
   m_Name: zombieInteligente_Endless
   m_TagString: zombie
@@ -179,4 +180,25 @@ MonoBehaviour:
   tiempoReintento: 1.5
   tiempoEntreAtaques: 0.2
   "da\xF1oAlTorre": 10
-  modoInfinito: 1
+--- !u!95 &-1104858489207916778
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5363003618223355719}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 5d44d927312e5e74c8024238b1afa8de, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0

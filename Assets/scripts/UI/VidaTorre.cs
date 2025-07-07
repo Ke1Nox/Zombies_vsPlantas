@@ -2,6 +2,9 @@ using TMPro;
 using UnityEngine;
 using System.Collections;
 
+using TMPro;
+using UnityEngine;
+
 public class VidaTorre : MonoBehaviour
 {
     private TextMeshProUGUI textMesh;
@@ -13,15 +16,16 @@ public class VidaTorre : MonoBehaviour
         textMesh = GetComponent<TextMeshProUGUI>();
         vidaAnterior = GestorGlobal.VidaTorre;
         textMesh.text = $"vida: {vidaAnterior}";
-
-        if (GameManagerEndless.Instance != null)
-            GameManagerEndless.Instance.OnDañoTorre += ActualizarVida;
     }
 
-    private void OnDestroy()
+    private void Update()
     {
-        if (GameManagerEndless.Instance != null)
-            GameManagerEndless.Instance.OnDañoTorre -= ActualizarVida;
+        int vidaActual = GestorGlobal.VidaTorre;
+
+        if (vidaActual != vidaAnterior)
+        {
+            ActualizarVida(vidaActual);
+        }
     }
 
     private void ActualizarVida(int nuevaVida)
@@ -37,12 +41,10 @@ public class VidaTorre : MonoBehaviour
         vidaAnterior = nuevaVida;
     }
 
-
     IEnumerator ParpadearRojo()
     {
         Color original = textMesh.color;
 
-        // Hacemos un parpadeo más fuerte
         textMesh.color = Color.red;
         yield return new WaitForSeconds(0.1f);
 
@@ -55,6 +57,7 @@ public class VidaTorre : MonoBehaviour
         textMesh.color = original;
     }
 }
+
 
 
 

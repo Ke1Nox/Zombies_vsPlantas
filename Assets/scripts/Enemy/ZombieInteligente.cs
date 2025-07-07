@@ -15,6 +15,7 @@ public class ZombieInteligente : MonoBehaviour
     private bool atacandoTorre = false;
     private TorreScript torreActual;
 
+    private Animator animator;
     private Rigidbody2D rb2D;
     private Spawner spawner;
 
@@ -28,12 +29,15 @@ public class ZombieInteligente : MonoBehaviour
     {
         rb2D = GetComponent<Rigidbody2D>();
         spawner = Object.FindFirstObjectByType<Spawner>();
+        animator = GetComponent<Animator>();
     }
 
     private void FixedUpdate()
     {
         if (atacandoTorre && torreActual != null)
         {
+            animator.SetBool("atacando", true);
+
             timerAtaqueTorre += Time.fixedDeltaTime;
             if (timerAtaqueTorre >= tiempoEntreAtaques)
             {
@@ -91,6 +95,7 @@ public class ZombieInteligente : MonoBehaviour
             atacandoTorre = false;
             torreActual = null;
             timerAtaqueTorre = 0f;
+            animator.SetBool("atacando", false);
         }
     }
 
@@ -191,6 +196,7 @@ public class ZombieInteligente : MonoBehaviour
 
     private void ReiniciarZombie()
     {
+        animator.SetBool("atacando", false);
         atacandoTorre = false;
         torreActual = null;
         timerAtaqueTorre = 0f;
