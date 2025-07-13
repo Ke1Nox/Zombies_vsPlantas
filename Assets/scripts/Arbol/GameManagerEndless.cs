@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.IO;
 
 public class GameManagerEndless : MonoBehaviour
 {
@@ -18,23 +19,20 @@ public class GameManagerEndless : MonoBehaviour
     public TextMeshProUGUI textoMonedas;
 
     public int EnemigosVivos => enemigosVivos;
-
     private int enemigosVivos = 0;
     private bool esperandoSiguienteOleada = false;
 
     public int vidaTorre = 1000;
     public TorreScript torreScript;
 
-
     public event System.Action<int> OnDañoTorre;
-
     public event System.Action OnNuevaOleada;
     public int NumeroOleada => numeroOleada;
 
     private Spawner spawner;
 
-    private string pathRecord;
-    private int mayorPuntajeGuardado = 0;
+    private string pathRanking;
+    private string nombreJugador => PlayerPrefs.GetString("nombreJugador", "Anonimo");
 
     private void Awake()
     {
@@ -44,16 +42,14 @@ public class GameManagerEndless : MonoBehaviour
 
     private void Start()
     {
+        Debug.Log("Nombre cargado: " + nombreJugador);
         torreScript = Object.FindFirstObjectByType<TorreScript>();
-        spawner = Object.FindFirstObjectByType<Spawner>(); // buscamos el spawner activo en la escena
-        pathRecord = Application.persistentDataPath + "/record.txt";
-        CargarPuntajeMaximo();
-        Debug.Log("Record actual: " + mayorPuntajeGuardado);
-        Debug.Log("Ruta del record.txt: " + Application.persistentDataPath);
-        ;
+        spawner = Object.FindFirstObjectByType<Spawner>();
+        pathRanking = Application.persistentDataPath + "/ranking.json";
 
+        CargarRanking();
 
-        ActualizarUI(); // Muestra el valor inicial de monedas al iniciar
+        ActualizarUI();
         IniciarSiguienteOleada();
     }
 
@@ -69,88 +65,63 @@ public class GameManagerEndless : MonoBehaviour
     private void IniciarSiguienteOleada()
     {
         numeroOleada++;
-
         OnNuevaOleada?.Invoke();
 
         int enemigosEnEstaOleada = enemigosPorOleadaInicial + (numeroOleada - 1) * 2;
-
-        Debug.Log("OLEADA " + numeroOleada + " - Enemigos: " + enemigosEnEstaOleada);
+        enemigosVivos = enemigosEnEstaOleada;
         esperandoSiguienteOleada = false;
 
-        enemigosVivos = enemigosEnEstaOleada;
-
-        //  Le pedimos al spawner que los genere
         if (spawner != null)
         {
             spawner.SpawnearZombies(enemigosEnEstaOleada);
-        }
-        else
-        {
-            Debug.LogError("Spawner no encontrado en la escena.");
         }
     }
 
     public void SumarPuntos(int puntos)
     {
         puntuacionActual += puntos;
-
-        if (puntuacionActual > mayorPuntajeGuardado)
-        {
-            mayorPuntajeGuardado = puntuacionActual;
-            GuardarPuntajeMaximo();
-            Debug.Log("Nuevo récord guardado: " + mayorPuntajeGuardado);
-        }
     }
 
     public void EnemigoDerrotado()
     {
         enemigosVivos--;
 
-        if (enemigosVivos <= 0)
+        if (enemigosVivos <= 0 && !esperandoSiguienteOleada)
         {
-            arbol.Insertar(puntuacionActual);
-            Debug.Log("Oleada completada. Puntaje actual: " + puntuacionActual + " | Mayor en memoria: " + arbol.ObtenerMaximo());
-
-            if (puntuacionActual > mayorPuntajeGuardado)
-            {
-                mayorPuntajeGuardado = puntuacionActual;
-                GuardarPuntajeMaximo();
-                Debug.Log("Nuevo récord guardado: " + mayorPuntajeGuardado);
-            }
+            esperandoSiguienteOleada = true;
+            Invoke(nameof(FinalizarOleada), 0.5f); // esperamos medio segundo antes de iniciar la próxima
         }
     }
-
-    private void GuardarPuntajeMaximo()
+    private void FinalizarOleada()
     {
-        try
-        {
-            System.IO.File.WriteAllText(pathRecord, mayorPuntajeGuardado.ToString());
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError("Error al guardar el récord: " + e.Message);
-        }
+        // Guardamos el puntaje solo al final de la oleada
+        PuntajeJugador nuevo = new PuntajeJugador(nombreJugador, puntuacionActual);
+        arbol.Insertar(nuevo);
+        GuardarRanking();
+
+        Debug.Log($"Oleada {numeroOleada} completada. Puntaje registrado: {puntuacionActual}");
+
+        Invoke(nameof(IniciarSiguienteOleada), tiempoEntreOleadas);
     }
 
-    private void CargarPuntajeMaximo()
+
+    private void GuardarRanking()
     {
-        try
-        {
-            if (System.IO.File.Exists(pathRecord))
-            {
-                string contenido = System.IO.File.ReadAllText(pathRecord);
-                if (int.TryParse(contenido, out int valor))
-                {
-                    mayorPuntajeGuardado = valor;
-                }
-            }
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError("Error al cargar el récord: " + e.Message);
-        }
+        List<PuntajeJugador> top = arbol.ObtenerTop(10);
+        string json = JsonUtility.ToJson(new ContenedorRanking(top));
+        File.WriteAllText(pathRanking, json);
     }
 
+    private void CargarRanking()
+    {
+        if (File.Exists(pathRanking))
+        {
+            string json = File.ReadAllText(pathRanking);
+            ContenedorRanking datos = JsonUtility.FromJson<ContenedorRanking>(json);
+            foreach (var p in datos.ranking)
+                arbol.Insertar(p);
+        }
+    }
 
     public void DamageTower(int daño)
     {
@@ -159,16 +130,12 @@ public class GameManagerEndless : MonoBehaviour
         if (vidaTorre <= 0) return;
 
         vidaTorre -= daño;
-        Debug.Log("Torre recibió " + daño + " de daño. Vida restante: " + vidaTorre);
 
         if (vidaTorre <= 0)
         {
-            Debug.Log("¡La torre fue destruida! Cargando escena de derrota...");
             SceneManager.LoadScene(4);
         }
     }
-
-
 
     public void SumarMonedas(int cantidad)
     {
@@ -193,5 +160,14 @@ public class GameManagerEndless : MonoBehaviour
             textoMonedas.text = "Monedas: " + monedas;
     }
 
+    // Extra: obtener el top para mostrar en UI
+    public List<PuntajeJugador> ObtenerTopRanking(int cantidad)
+    {
+        return arbol.ObtenerTop(cantidad);
+    }
+
+  
+
 }
+
 

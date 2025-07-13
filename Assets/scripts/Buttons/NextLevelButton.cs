@@ -13,24 +13,10 @@ public class NextLevelButton : MonoBehaviour
 
     private void Start()
     {
-        pathRecord = Application.persistentDataPath + "/record.txt";
-
-        if (textoRecordEndless != null)
-        {
-            if (File.Exists(pathRecord))
-            {
-                string contenido = File.ReadAllText(pathRecord);
-                textoRecordEndless.text = "Récord Endless: " + contenido + " puntos";
-            }
-            else
-            {
-                textoRecordEndless.text = "Récord Endless: 0 puntos";
-            }
-        }
-
         if (panelModoSelector != null)
             panelModoSelector.SetActive(false);
     }
+
 
     // BOTONES NORMALES
 
