@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3172695647398862460}
   - component: {fileID: 39066223221443791}
   - component: {fileID: -2492791869181730864}
+  - component: {fileID: -7404801627706795}
   m_Layer: 7
   m_Name: bala torretas
   m_TagString: Untagged
@@ -151,3 +152,17 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &-7404801627706795
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6241041530121035008}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 191e83b347e40604a95b06fa70a42f0f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  "da\xF1o": 5
+  tiempoVida: 2

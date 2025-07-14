@@ -7,16 +7,23 @@ public class Shop : MonoBehaviour
     public GameObject prefabTorreEspecial;
     public GameObject prefabMuro;
 
+    private bool torreEspecialColocada = false;
     public Spawner spawner;
 
     void Update()
     {
-        // Colocar torre con T
         if (Input.GetKeyDown(KeyCode.T))
         {
+            if (torreEspecialColocada)
+            {
+                Debug.LogWarning("Ya colocaste una torre especial.");
+                return;
+            }
+
             if (GestorGlobal.GastarMonedas(50))
             {
                 Instantiate(prefabTorreEspecial, transform.position, Quaternion.identity);
+                torreEspecialColocada = true;
                 Debug.Log("Torre especial colocada.");
             }
             else
@@ -25,13 +32,15 @@ public class Shop : MonoBehaviour
             }
         }
 
+
         // Colocar muro con Y
         if (Input.GetKeyDown(KeyCode.Y))
         {
-            if (GestorGlobal.GastarMonedas(50))
+            int nodoDisponible = BuscarNodoParaMuro();
+
+            if (nodoDisponible != -1)
             {
-                int nodoDisponible = BuscarNodoParaMuro();
-                if (nodoDisponible != -1)
+                if (GestorGlobal.GastarMonedas(50))
                 {
                     Vector2 pos = spawner.posicionesNodos[nodoDisponible];
                     GameObject muro = Instantiate(prefabMuro, pos, Quaternion.identity);
@@ -40,12 +49,12 @@ public class Shop : MonoBehaviour
                 }
                 else
                 {
-                    Debug.LogWarning("No se encontró nodo válido para colocar un muro.");
+                    Debug.LogWarning("No tenés suficientes monedas para el muro.");
                 }
             }
             else
             {
-                Debug.LogWarning("No tenés suficientes monedas para el muro.");
+                Debug.LogWarning("No se encontró nodo válido para colocar un muro.");
             }
         }
     }

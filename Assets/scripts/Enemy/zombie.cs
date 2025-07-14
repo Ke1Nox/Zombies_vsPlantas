@@ -1,16 +1,18 @@
+using Assets.scripts.TorretaEspecial;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class zombie : MonoBehaviour
+public class zombie : MonoBehaviour, IDañoable
 {
     [SerializeField] int maximoVidaZ = 100;
     [SerializeField] private float TiempoEntreDaño = 2f;
     [SerializeField] private float vel = 5f;
 
+    public int Vida => vidaZombie;
     private Animator animator;
     private bool atacandoTorre = false;
     private int vidaZombie;
-    public int Vida => vidaZombie;
+  
 
     private float TiempoSigienteDaño = 0f;
     private GameObject muroAnterior;

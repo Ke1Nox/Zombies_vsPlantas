@@ -1,13 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using Assets.scripts.TorretaEspecial;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class ZombieInteligente : MonoBehaviour
+public class ZombieInteligente : MonoBehaviour, IDañoable
 {
     [SerializeField] private int vidaZombie = 100;
     [SerializeField] private float velocidad = 5f;
     [SerializeField] private float tiempoReintento = 1.5f;
     [SerializeField] private float tiempoEntreAtaques = 0.2f;
     [SerializeField] private int dañoAlTorre = 10;
+
+    public int Vida => vidaZombie;
 
     private float tiempoProximoIntento = 0f;
     private float timerAtaqueTorre = 0f;

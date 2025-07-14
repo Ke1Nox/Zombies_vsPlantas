@@ -1,5 +1,7 @@
+using Assets.scripts.TorretaEspecial;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class TorreEspecial : MonoBehaviour
@@ -10,11 +12,16 @@ public class TorreEspecial : MonoBehaviour
     public GameObject balaPrefab;
     public Transform puntoDisparo;
     [SerializeField] float velBala;
+    [SerializeField] float DañoBala;
+    private BalaTorreEspecial bala;
+
+
 
     private float tiempoDisparoActual;
 
     void Start()
     {
+        bala = new BalaTorreEspecial();
         Destroy(gameObject, tiempoVida); // Se destruye sola
     }
 
@@ -31,46 +38,47 @@ public class TorreEspecial : MonoBehaviour
 
     void Atacar()
     {
-        List<zombie> enemigos = ObtenerEnemigosEnRango();
+        List<IDañoable> enemigos = ObtenerEnemigosEnRango();
 
         if (enemigos.Count == 0) return;
 
         QuickSort(enemigos, 0, enemigos.Count - 1);
 
-        zombie objetivo = enemigos[0]; // Más débil (menos vida)
+        IDañoable objetivo = enemigos[0]; // El de menor vida
         Vector3 dir = (objetivo.transform.position - transform.position).normalized;
 
         GameObject bala = Instantiate(balaPrefab, puntoDisparo.position, Quaternion.identity);
+        bala.GetComponent<BalaTorreEspecial>()?.SetDaño(DañoBala);
+
         Rigidbody2D rb = bala.GetComponent<Rigidbody2D>();
         if (rb != null)
         {
             rb.velocity = dir * velBala;
         }
-        else
-        {
-            Debug.LogWarning("La bala no tiene Rigidbody2D asignado.");
-        }
-
     }
 
-    List<zombie> ObtenerEnemigosEnRango()
+
+    List<IDañoable> ObtenerEnemigosEnRango()
     {
-        zombie[] todos = Object.FindObjectsByType<zombie>(FindObjectsSortMode.None);
+        List<IDañoable> enRango = new List<IDañoable>();
 
-        List<zombie> enRango = new List<zombie>();
+        IDañoable[] enemigos = Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None)
+            .OfType<IDañoable>()
+            .ToArray();
 
-        foreach (zombie z in todos)
+        foreach (IDañoable enemigo in enemigos)
         {
-            if (Vector3.Distance(transform.position, z.transform.position) <= rango)
+            if (Vector3.Distance(transform.position, enemigo.transform.position) <= rango)
             {
-                enRango.Add(z);
+                enRango.Add(enemigo);
             }
         }
 
         return enRango;
     }
 
-    void QuickSort(List<zombie> lista, int izquierda, int derecha)
+
+    void QuickSort(List<IDañoable> lista, int izquierda, int derecha)
     {
         if (izquierda >= derecha) return;
 
@@ -80,9 +88,9 @@ public class TorreEspecial : MonoBehaviour
         QuickSort(lista, pivote + 1, derecha);
     }
 
-    int Particionar(List<zombie> lista, int izquierda, int derecha)
+    int Particionar(List<IDañoable> lista, int izquierda, int derecha)
     {
-        float pivoteValor = lista[derecha].Vida; // menor vida
+        float pivoteValor = lista[derecha].Vida;
         int i = izquierda - 1;
 
         for (int j = izquierda; j < derecha; j++)
@@ -97,4 +105,5 @@ public class TorreEspecial : MonoBehaviour
         (lista[i + 1], lista[derecha]) = (lista[derecha], lista[i + 1]);
         return i + 1;
     }
+
 }
