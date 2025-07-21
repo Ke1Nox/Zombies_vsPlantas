@@ -80,6 +80,11 @@ public class NextLevelButton : MonoBehaviour
         SceneManager.LoadScene(1); // juego
     }
 
+    public void CargarHowToPlay()
+    {
+        SceneManager.LoadScene(6); // juego
+    }
+
     public void CargarModoEndless()
     {
         SceneManager.LoadScene("ModoEndless"); // usá el nombre exacto
