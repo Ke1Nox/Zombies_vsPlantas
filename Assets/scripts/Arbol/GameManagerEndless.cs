@@ -89,12 +89,12 @@ public class GameManagerEndless : MonoBehaviour
         if (enemigosVivos <= 0 && !esperandoSiguienteOleada)
         {
             esperandoSiguienteOleada = true;
-            Invoke(nameof(FinalizarOleada), 0.5f); // esperamos medio segundo antes de iniciar la próxima
+            Invoke(nameof(FinalizarOleada), 0.5f); 
         }
     }
     private void FinalizarOleada()
     {
-        // Guardamos el puntaje solo al final de la oleada
+        // Guardar el puntaje solo al final de la oleada
         PuntajeJugador nuevo = new PuntajeJugador(nombreJugador, puntuacionActual);
         arbol.Insertar(nuevo);
         GuardarRanking();

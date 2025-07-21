@@ -40,7 +40,7 @@ public class BalaPJ : MonoBehaviour
     {
         if (collision.CompareTag("zombie"))
         {
-            // Daño a zombie común
+            // Zombie común
             var zombieComun = collision.GetComponent<zombie>();
             if (zombieComun != null)
             {
@@ -48,11 +48,20 @@ public class BalaPJ : MonoBehaviour
             }
             else
             {
-                // Daño a zombie inteligente
+                // Zombie inteligente
                 var zombieInteligente = collision.GetComponent<ZombieInteligente>();
                 if (zombieInteligente != null)
                 {
                     zombieInteligente.TomarDañoZ(25);
+                }
+                else
+                {
+                    // Enemigo volador
+                    var volador = collision.GetComponent<EnemigoVolador>();
+                    if (volador != null)
+                    {
+                        volador.RecibirDaño(25);
+                    }
                 }
             }
 

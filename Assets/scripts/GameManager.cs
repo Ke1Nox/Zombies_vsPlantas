@@ -54,9 +54,9 @@ public class GameManager : MonoBehaviour
         {
            LoadScene(2);// Ganas Nivel 1 → Win1
         }
-        else if (currentLevel == 2 && puntos >= 500)
+        else if (currentLevel == 2 && puntos >= 1000)
         {
-            LoadScene(4); // Ganas Nivel 2 → Win2 (Victoria Final)
+            LoadScene(8); // Ganas Nivel 2 → Win2 (Victoria Final)
         }
     }
 

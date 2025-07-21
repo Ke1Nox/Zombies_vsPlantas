@@ -29,5 +29,11 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/HowToPlay.unity
     guid: f6dbea6b4ca19f14ba3e9aba6b404e70
+  - enabled: 1
+    path: Assets/Scenes/Lvl 1.2.unity
+    guid: aeb807696ec5445449308db0118b0f7e
+  - enabled: 1
+    path: Assets/Scenes/Ganastee.unity
+    guid: ce9b8e34666c2f74b9f277b2008c9450
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

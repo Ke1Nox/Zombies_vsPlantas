@@ -85,9 +85,14 @@ public class NextLevelButton : MonoBehaviour
         SceneManager.LoadScene(6); // juego
     }
 
+    public void CargarNivel2()
+    {
+        SceneManager.LoadScene(7); // juego
+    }
+
     public void CargarModoEndless()
     {
-        SceneManager.LoadScene("ModoEndless"); // usá el nombre exacto
+        SceneManager.LoadScene("ModoEndless"); 
     }
 
     public void CerrarSelectorDeModo()

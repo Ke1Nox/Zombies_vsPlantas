@@ -833,6 +833,53 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2007862261}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &453494257
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 453494258}
+  - component: {fileID: 453494259}
+  m_Layer: 0
+  m_Name: Spawnervolador
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &453494258
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 453494257}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -50, y: 6, z: 0.843034}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &453494259
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 453494257}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ce3fe71fb4352b4f8d77613e544ad9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemigoVoladorPrefab: {fileID: 8835620986903575859, guid: 5fed733b21799aa44938813e82aa214f, type: 3}
+  intervaloSpawn: 10
+  posicionSpawn: {x: -50, y: 6}
 --- !u!1 &505499312
 GameObject:
   m_ObjectHideFlags: 0
@@ -1519,8 +1566,8 @@ Transform:
   m_GameObject: {fileID: 763285868}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 36.3, y: -13.2317, z: 0}
-  m_LocalScale: {x: 2.984343, y: 28.18828, z: 1.2441}
+  m_LocalPosition: {x: 36.3, y: -2.8641, z: 0}
+  m_LocalScale: {x: 2.984343, y: 48.921413, z: 1.2441}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 88793355}
@@ -1694,7 +1741,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: -61
-  m_Sprite: {fileID: 21300000, guid: 3a4a9621027edf348800108a3caf1503, type: 3}
+  m_Sprite: {fileID: -7841535987243693378, guid: 357975507fd9f8a418a01d9fab8577cf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -2471,7 +2518,7 @@ Transform:
   m_GameObject: {fileID: 1021086186}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -43.24, y: 11.77, z: 0}
+  m_LocalPosition: {x: -43.24, y: 11.9, z: 0}
   m_LocalScale: {x: 0.26772904, y: 0.26772904, z: 0.26772904}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2746,7 +2793,7 @@ MonoBehaviour:
   puntos: 0
   monedas: 0
   textoMonedas: {fileID: 707938277}
-  currentLevel: 1
+  currentLevel: 2
   torreScript: {fileID: 763285873}
   turret: {fileID: 889187571}
 --- !u!114 &1266814337
@@ -2867,7 +2914,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: lvl1
+  m_text: lvl2
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ce07b7102fa3297409731b3475f58ffa, type: 2}
   m_sharedMaterial: {fileID: -4019838547992199210, guid: ce07b7102fa3297409731b3475f58ffa, type: 2}
@@ -3819,3 +3866,4 @@ SceneRoots:
   - {fileID: 505499313}
   - {fileID: 361982055}
   - {fileID: 1021086189}
+  - {fileID: 453494258}
